@@ -109,7 +109,7 @@ print y
 print '~~~~~~~~~~~~~~'
 print 'Create filter'
 print '~~~~~~~~~~~~~~'
-kernel = 119 #59 #121
+kernel = 119 #59 #119
 sizex = kernel 
 sizey = kernel 
 
@@ -154,47 +154,13 @@ print '~~~~~~~~~~~~~~'
 print 'Maximum'
 print '~~~~~~~~~~~~~~'
 
-#print "Calculating...."
-#method = "_maximum"
-#dem_maximum_filter = ndimage.filters.maximum_filter(image_array,size=(kernel,kernel),mode='reflect')
-#print dem_maximum_filter.shape
-
-#filtered_image = dem_maximum_filter
-#filtered_image_name = "201a_dem%s_filter_kernel_%i" %(method, kernel)
-
-print '~~~~~~~~~~~~~~'
-print 'Maximum (10% of max)'
-print '~~~~~~~~~~~~~~'
-
 print "Calculating...."
-method = "_maximum_10"
+method = "_maximum"
 dem_maximum_filter = ndimage.filters.maximum_filter(image_array,size=(kernel,kernel),mode='reflect')
-dem_minimum_filter = ndimage.filters.minimum_filter(image_array,size=(kernel,kernel),mode='reflect')
-dem_maxmin_range = dem_maximum_filter - dem_minimum_filter
-dem_maxmin_range_minus_10 = dem_maxmin_range - ((dem_maxmin_range/100)*10)
-dem_max_10_filter = dem_maximum_filter - dem_maxmin_range_minus_10
+print dem_maximum_filter.shape
 
-print dem_max_10_filter.shape
-
-filtered_image = dem_max_10_filter
+filtered_image = dem_maximum_filter
 filtered_image_name = "201a_dem%s_filter_kernel_%i" %(method, kernel)
-
-print '~~~~~~~~~~~~~~'
-print 'Maximum (20% of max)'
-print '~~~~~~~~~~~~~~'
-
-#print "Calculating...."
-#method = "_maximum_20"
-#dem_maximum_filter = ndimage.filters.maximum_filter(image_array,size=(kernel,kernel),mode='reflect')
-#dem_minimum_filter = ndimage.filters.minimum_filter(image_array,size=(kernel,kernel),mode='reflect')
-#dem_maxmin_range = dem_maximum_filter - dem_minimum_filter
-#dem_maxmin_range_minus_20 = dem_maxmin_range - ((dem_maxmin_range/100)*20)
-#dem_max_20_filter = dem_maximum_filter - dem_maxmin_range_minus_20
-
-#print dem_max_20_filter.shape
-
-#filtered_image = dem_max_20_filter
-#filtered_image_name = "201a_dem%s_filter_kernel_%i" %(method, kernel)
 
 print '~~~~~~~~~~~~~~'
 print 'Resample the result and display'
@@ -232,11 +198,37 @@ print '~~~~~~~~~~~~~~'
 print 'Surface differencing'
 print '~~~~~~~~~~~~~~'
 
-# original array - filtered array = crevasse array
+## original array - filtered array = crevasse array
+#crevasse_array = image_array - filtered_image
+#crevasse_array_name = filtered_image_name + "_crevasse_surface"
+#print crevasse_array.shape
+#print crevasse_array.size
+
+print '~~~~~~~~~~~~~~'
+print 'Surface differencing 10% less'
+print '~~~~~~~~~~~~~~'
+
 crevasse_array = image_array - filtered_image
-crevasse_array_name = filtered_image_name + "_crevasse_surface"
-print crevasse_array.shape
-print crevasse_array.size
+crevasse_array_10_temp = (crevasse_array/100)*10
+crevasse_array_10_surface = crevasse_array - crevasse_array_10_temp
+
+crevasse_array_name = filtered_image_name + "_crevasse_surface_10_percent_reduction"
+print crevasse_array_10_surface.shape
+print crevasse_array_10_surface.size
+filtered_image_name = "201a_dem%s_filter_kernel_%i_10_percent_reduction" %(method, kernel)
+
+print '~~~~~~~~~~~~~~'
+print 'Surface differencing 20% less'
+print '~~~~~~~~~~~~~~'
+
+#crevasse_array = image_array - filtered_image
+#crevasse_array_10_temp = (crevasse_array/100)*20
+#crevasse_array_10_surface = crevasse_array - crevasse_array_20_temp
+
+#crevasse_array_name = filtered_image_name + "_crevasse_surface_20_percent_reduction"
+#print crevasse_array_10_surface.shape
+#print crevasse_array_10_surface.size
+#filtered_image_name = "201a_dem%s_filter_kernel_%i_10_percent_reduction" %(method, kernel)
 
 print '~~~~~~~~~~~~~~'
 print 'Export the array subtractions as a new ENVI binary file'
@@ -282,12 +274,12 @@ ax1.set_title('Unfiltered surface')
 # filtered array slice
 ax2 = fig.add_subplot(312)
 ax2.plot(x[:,x.shape[0]/2],filtered_image[:,x.shape[0]/2],'b') # creates a plot with the x axis taken halfway along the x array - the y axis values are from the image-array at the x positions
-ax2.set_title('Filtered surface')
+ax2.set_title('Filtered surface (maximum)')
 
 # difference slice 
 ax3 = fig.add_subplot(313)
-ax3.plot(x[:,x.shape[0]/2],crevasse_array[:,x.shape[0]/2],'g') # creates a plot with the x axis taken halfway along the x array - the y axis values are from the image-array at the x positions
-ax3.set_title('Difference surface')
+ax3.plot(x[:,x.shape[0]/2],crevasse_array_10_surface[:,x.shape[0]/2],'g') # creates a plot with the x axis taken halfway along the x array - the y axis values are from the image-array at the x positions
+ax3.set_title('Difference surface (10% reduction)')
 
 plt.show()
 image_output = r'/home/staff/ggwillc/Desktop/filtering_output_images/' + filtered_image_name + 'slices.pdf'
