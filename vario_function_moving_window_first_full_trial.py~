@@ -20,7 +20,7 @@ from osgeo.gdalconst import * # for reading in raster
 
 # start timing
 startTime = time.time()
-
+'''
 variance = []
 lag = []
 
@@ -92,7 +92,7 @@ print '~~~~~~~~~~~~~~'
 #image_array_subsample_DATA = image_array[4790:4850, 7000:7060]
 #image_array_subsample_DATA = image_array[4790:4910, 7000:7120]
 image_array_subsample_DATA = image_array[7119:7489, 7219:7589]
-
+'''
 def test_function(image_array_subsample, window_iteration):
 
 	var_accum = np.zeros(len(bins))
@@ -379,13 +379,13 @@ def test_function(image_array_subsample, window_iteration):
 	
 	return(pond,mindest,p1,p2)
 
-'''	
+	
 ## TEST ARRAY (IGNORE ALL OF THE ABOVE APART FROM THE IMPORTS AND USE THIS IF YOU FANCY)
 
 image_array_subsample_DATA = pl.rand(10,10) #np.ndarray(shape = (30,30)) * random.randrange(10,80,1) # random values between 0 and 80
 indNan=np.isnan(image_array_subsample_DATA)
 image_array_subsample_DATA[indNan]=10.
-'''
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # SET MOVING WINDOW UP

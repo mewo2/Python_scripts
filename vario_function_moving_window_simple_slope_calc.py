@@ -37,8 +37,6 @@ plt.clf()
 
 # Set file location
 file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/dem_median_filter_kernel_121_crevasse_surface"
-#file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/222a_lidar/bin/222a.helheim_post_0.5m.bin"
-#file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
 
 # open file
 inds = gdal.Open(file_name, GA_ReadOnly)
@@ -75,7 +73,6 @@ print "origin y: %i" %originY
 print "width: %2.2f" %pixelWidth
 print "height: %2.2f" %pixelHeight
 
-# Set pixel offset.....
 print '~~~~~~~~~~~~~~' 
 print 'Convert image to 2D array'
 print '~~~~~~~~~~~~~~'
@@ -88,10 +85,7 @@ print shape(image_array)
 print '~~~~~~~~~~~~~~' 
 print 'Subsample 2D array'
 print '~~~~~~~~~~~~~~'
-#image_array_subsample_DATA = image_array[4790:4910, 7000:7120]
-#image_array_subsample_DATA = image_array[4790:4850, 7000:7060]
-#image_array_subsample_DATA = image_array[4790:4910, 7000:7120]
-image_array_subsample_DATA = image_array[7119:7489, 7219:7589]
+image_array_subsample_DATA = image_array[7119:7219, 7219:7319]
 
 def test_function(image_array_subsample, window_iteration):
 
@@ -100,69 +94,32 @@ def test_function(image_array_subsample, window_iteration):
 	var_mean = np.zeros(len(bins))
 
 # Loop array and accumulate values according to bin - integrate counter for each accumulation instance --> creates one list of bins and total variance
-
-	for i in range(len(image_array_subsample)):
-		for j in range(len(image_array_subsample[i])):
-			pos_now_row = i
-			pos_now_col = j
-			value = image_array_subsample[i][j]
-			#print "%i,%i" %(pos_now_row,pos_now_col) # position
-			#print "value = %f" %(value)
-
-			rows = len(image_array_subsample) # gets no. rows (count starts at 1)
-			cols = len(image_array_subsample[0]) # gets no. cols (count starts at 1)
-			#print "Number of rows (size starting at 1): %d" %(rows)
-			#print "Number of columns (size starting at 1): %d" %(cols)
-
-			rows2 = len(image_array_subsample)-1 # gets no. rows in terms of position (count starts at 0)
-			cols2 = len(image_array_subsample[0])-1 # gets no. cols in terms of position (count starts at 0)
-			#print "Number of rows (in terms of index starting at 0): %d" %(rows2)
-			#print "Number of cols (in terms of index starting at 0): %d" %(cols2)
-
-			for i2 in range (len(image_array_subsample)):
-				for j2 in range (len(image_array_subsample[i2])):
-				
-					try: # TESTS IF STILL WITHIN COLUMN (J) LIMITS
-						instance_i2 = image_array_subsample[i2]
-						instance_j2 = image_array_subsample[j2]
-						instance_test = 1
-					except IndexError: # CATCHES THE OUTOFBOUNDS ERROR
-						instance_test = 0
+	isize, jsize = image_array_subsample.shape
+	for i in xrange(isize):
+		for j in xrange(jsize):
+			value = image_array_subsample[i,j]
+			img_diff_abs = np.abs(image_array_subsample - value)
+			for i2 in xrange(i, isize):
+				for j2 in xrange(jsize):
+					lag_val = ((i2 - i) ** 2 + (j2 - j) ** 2) ** .5
+					bin_No = int((lag_val/bin_size)-1)
+					#print "bin_No: %i" %(bin_No)
+					####lag.append(lag_val)
+										
+					var_accum[bin_No] += img_diff_abs[i2,j2]
+					var_accum_counter[bin_No] += 1
+					#print "counter for bin 1: %i" %(var_accum_counter[5])
+					####variance.append(var_value_ABSOLUTE)
 					
-					# IF VALUE IS INSIDE OF WINDOW THEN DO SOMETHING
-					# IF VALUE IS OUTSIDE OF WINDOW THEN DO SOMETHING
-					
-					if instance_test == 1:
-						pos_now_row_2 = i2
-						pos_now_col_2 = j2
-						
-						lag_val_pre = ((pos_now_row_2 - pos_now_row)*(pos_now_row_2 - pos_now_row))+((pos_now_col_2 - pos_now_col)*(pos_now_col_2 - pos_now_col))
-						lag_val = math.sqrt(lag_val_pre)
-						bin_No = int((lag_val/bin_size)-1)
-						#print "bin_No: %i" %(bin_No)
-						####lag.append(lag_val)
-											
-						var_value = value - image_array_subsample[i2][j2]
-						var_value_ABSOLUTE = math.fabs(var_value)
-						var_accum[bin_No] += var_value_ABSOLUTE
-						var_accum_counter[bin_No] += 1
-						#print "counter for bin 1: %i" %(var_accum_counter[5])
-						####variance.append(var_value_ABSOLUTE)
-						
-						# At end of array, divide accumulations by individual counters to give mean variance and plot
-					
-					elif instance_test == 1: 
-						print "OUT OF BOUNDS REACHED - SORT OUT A BOUNDARY CONDITION"
-						
-	for i in range(len(bins)):
-		var_mean[i] = var_accum[i]/var_accum_counter[i]
+					# At end of array, divide accumulations by individual counters to give mean variance and plot
+	
+	var_mean = var_accum / np.maximum(var_accum_counter, 1)
 
 	#### plot vario-function
 
 	# make both arrays are of same type
-	variance_mean_np = np.array(var_mean)
 	bin_np = np.array(bins)
-
+	'''
 	### PLOT VARIO-FUNCTION
 	plt.clf()
 	plt.plot(bin_np,variance_mean_np)
@@ -175,218 +132,35 @@ def test_function(image_array_subsample, window_iteration):
 	vario_plot_windows =  r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/'+ 'vario_plot_NEW_%s_window_iteration_%s.png' %(time_stamp,window_iteration)
 	plt.savefig(vario_plot_windows)
 	#plt.show()
-
+	'''
 	# CALCULATE SLOPES BETWEEN POINTS
 	
-	binvar_unsorted = zip(bin_np,variance_mean_np) # combine lag and var lists in to 2 column list
-	binvar_sorted = sorted(binvar_unsorted, key=lambda value: value[0]) # sort combined column list by lag (1st col[0])
-	print "length of binvar_sorted = %f" %(len(binvar_sorted))
-
-	####
-	## Calc slope between values
-	####
-	#for i in range(len(lagvar_sorted)):
-
-	slope_gradient_list = []
-	for i in range(bin_int):
-		row_value = binvar_sorted[i][0]
-		col_value = binvar_sorted[i][1]
-		#print "row value: %f" %(row_value)
-		#print "column value: %f" %(col_value)
-
-		# don't calculate this for i == [0]
-		if i > 0 and i < bin_int:
-			#print "Calculating slope between current and previous point"
-			O = binvar_sorted[i][1] - binvar_sorted[i-1][1]
-			A = binvar_sorted[i][0] - binvar_sorted[i-1][0]
-			#print "O value: %f" %(O)
-			#print "A value: %f" %(A)
-
-			if binvar_sorted[i][0] == 0:
-				print "adjacent == 0 therefore no slope angle as same point...."
-			else:
-				tan_x = O/A
-				x_rad  = math.atan(tan_x)
-				#print "tan_x value: %f" %(tan_x)
-				#print "x_rad value: %f" %(x_rad)
-				slope_gradient_list.append(x_rad)
-		else:
-			print "First point in binned lag/variance list therefore no slope to calculate"
-			slope_gradient_list.append(0.0)
-
-	####
-	# Check for max AND min values
-	# NB/ slope of [i] is that between [i-1] and [i] - so to check for a slope up to or down to [i], you check slope at position [i] in array - not [i-1]!!!
-	####
-
-	max_counter = 0
-	min_counter = 0
-
-	max_number = []
-	max_lag = []
-	max_variance = []
-
-	min_number = []
-	min_lag = []
-	min_variance = []
-
-	#########################
-
-	for i in range(len(slope_gradient_list)):
-	#for i in range(10):
-		print i
-		print slope_gradient_list[i]
-
-		try: # TESTS IF STILL WITHIN COLUMN (J) LIMITS
-			next_cell = slope_gradient_list[i+1]
-			next_cell_test = 1
-		except IndexError: # CATCHES THE OUTOFBOUNDS ERROR
-			next_cell_test = 0
-
-		if next_cell_test == 1:
-			if slope_gradient_list[i] > 0.0 and slope_gradient_list[i+1] <= 0.0:
-				print "Maximum"
-				var_max = binvar_sorted[i][1]
-				lag_max = binvar_sorted[i][0]
-				max_counter += 1
-				print "Max %i: Lag = %f, Var = %f" %(max_counter,lag_max, var_max)
-				max_number.append(max_counter)
-				max_lag.append(lag_max)
-				max_variance.append(var_max)
-			if slope_gradient_list[i] < 0.0 and slope_gradient_list[i+1] > 0.0:
-				print "Minimum"
-				var_min = binvar_sorted[i][1]
-				lag_min = binvar_sorted[i][0]
-				min_counter += 1
-				print "Min %i: Lag = %f, Var = %f" %(min_counter,lag_min,var_min)
-				min_number.append(min_counter)
-				min_lag.append(lag_min)
-				min_variance.append(var_min)
-			elif slope_gradient_list[i+1] > 0.0:
-				print "Not Maximum: gradient after point is positive"
-				print "slope_gradient_list[i+1] = %f" %(slope_gradient_list[i+1])
-			elif slope_gradient_list[i] < 0.0:
-				print "i: %i" %(i)
-				print "slope_gradient_list[i]: %f" %(slope_gradient_list[i])
-				print "slope_gradient_list[i-1]: %f" %(slope_gradient_list[i-1])
-				print "slope_gradient_list[i+1]: %f" %(slope_gradient_list[i+1])
-				print "slope_gradient_list[i-1]: %f" %(slope_gradient_list[i-1])
-				print "Not Maximum: gradient leading up to point is negative"
-			elif slope_gradient_list[i] == 0.0:
-				print "No gradient leading up to point - plateau in variance"
-			else:
-				print "Not Maximum"
-			
-		else:
-			print "out of bounds - min/max values here are at the greatest lag of the vario-function"
-			if slope_gradient_list[i] > 0.0:
-				print "Maximum"
-				var_max = binvar_sorted[i][1]
-				lag_max = binvar_sorted[i][0]
-				max_counter += 1
-				print "Max %i: Lag = %f, Var = %f" %(max_counter,lag_max, var_max)
-				max_number.append(max_counter)
-				max_lag.append(lag_max)
-				max_variance.append(var_max)
-			elif slope_gradient_list[i] < 0.0:
-				print "Minimum"
-				var_min = binvar_sorted[i][1]
-				lag_min = binvar_sorted[i][0]
-				min_counter += 1
-				print "Min %i: Lag = %f, Var = %f" %(min_counter,lag_min,var_min)
-				min_number.append(min_counter)
-				min_lag.append(lag_min)
-				min_variance.append(var_min)
-			else:
-				print "Plateau leading to the last point of the vario-function - no max/min value identified"
-				
-	print "max_counter: %i" %(max_counter)
-	print "min_counter: %i" %(min_counter)
-	max_list = zip(max_number,max_lag,max_variance)
-	min_list = zip(min_number,min_lag,min_variance)
-
-	##############
-
-	####
-	## Establish variables
-	####
-
-	print "VARIO-FUNCTION CLASSIFICATION: CALCULATING FIRST ORDER VARIABLES"
-	p1=-9999.
-	p2=-9999.
-	mindest=-9999.
-	pond=-9999.
-
-	##pond
-	pond = max(variance_mean_np)
-	print "pond = %f" %(max(variance_mean_np))
-	
-	###################
-	# CHECK LISTS EXIST
-	if not min_lag:
-		empty_min_list = 0
-	else:
-		empty_min_list = 1
-			
-	if not max_lag:
-		empty_max_list = 0
-	else:
-		empty_max_list = 1
-	###################
-	
-	###################
-	# CHECK POSITION IN min_lag LIST EXISTS
+	diffs = var_mean[1:] - var_mean[:-1]
+	signdiffs = np.diff(np.sign(diffs))
+	maxes = np.where(signdiffs > 0)[0] + 1
+	mins = np.where(signdiffs < 0)[0] + 1
 	try:
-		min_lag[1]
-		min_lag_presence = 1
-	except:
-		min_lag_presence = 0
-	###################
-	
-	if empty_min_list == 1 and empty_max_list == 1:
-		##mindest
-		mindest = min_lag[0]  - max_lag[0]
-		if mindest > 0:
-			print "mindest = %f" %(mindest)
-		elif mindest < 0 and min_lag_presence == 1:
-			print "min_1 precedes max_1 - will use min_2_lag instead"
-			mindest = min_lag[1] - max_lag[0] 
-		elif mindest == 0 and min_lag_presence == 1:
-			print "min_1 does not lag after max_1 - will use min_2_lag instead"
-			mindest = min_lag[1] - max_lag[0] 
-		elif mindest == 0 and min_lag_presence == 0:
-			print "min_1 does not lag after max_1 - would use min_2_lag instead but value DOES NOT EXIST"
-			mindest = mindest 
-	
-		##p1
-		p1 = (max_variance[0] - min_variance[0]) / (min_lag[0] - max_lag[0])
-		print "p1 = %f" %(p1)
-
-		##p2
-		p2 = (max_variance[0] - min_variance[0]) / max_variance[0]
-		print "p2 = %f" %(p2)
-	
-	elif empty_min_list == 0 and empty_max_list == 1:
-		print "WARNING: mindest, p1 and p2 variables not calculated - not enough maximum values"
-		print "CHECK DATA - WIDEN WINDOW DIMENSIONS?"
-	elif empty_min_list == 1 and empty_max_list == 0:
-		print "WARNING: mindest, p1 and p2 variables not calculated - not enough minimum values"
-		print "CHECK DATA"
-		print "CHECK DATA - WIDEN WINDOW DIMENSIONS?"
-	elif empty_min_list == 1 and empty_max_list == 1:
-		print "WARNING: mindest, p1 and p2 variables not calculated - no maximum or minimum values available from vario-function"
-		print "CHECK DATA - WIDEN WINDOW DIMENSIONS?"
-	
-	return(pond,mindest,p1,p2)
-
-'''	
+		max1 = maxes[0]
+		min1 = mins[mins > max1][0]
+		max_var = var_mean[max1]
+		max_lag = bin_np[max1]
+		min_var = var_mean[min1]
+		min_lag = bin_np[min1]
+	except IndexError:
+		max_var = -9999.0
+		max_lag = -9999.0
+		min_var = -9999.0
+		min_lag = -9999.0
+		return 0, 0, 0, 0
+	print "Real values!"
+	return max_var, min_lag - max_lag, (max_var - min_var) / (min_lag - max_lag), (max_var - min_var) / max_var
+		
 ## TEST ARRAY (IGNORE ALL OF THE ABOVE APART FROM THE IMPORTS AND USE THIS IF YOU FANCY)
-
+'''
 image_array_subsample_DATA = pl.rand(10,10) #np.ndarray(shape = (30,30)) * random.randrange(10,80,1) # random values between 0 and 80
 indNan=np.isnan(image_array_subsample_DATA)
 image_array_subsample_DATA[indNan]=10.
 '''
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # SET MOVING WINDOW UP
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -578,8 +352,8 @@ for vv in range(nvars):
 	image_output_moving_window = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/' + variable_value + '_moving_window_mean_output_%s.png' %(time_stamp)
 	#plt.show()
 	fig.savefig(image_output_moving_window)
-'''	
-
+	
+'''
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Accumulate all value windows and calculate mean surface
 # Add conditional to prevent averaging where one or more values has a value of -9999
