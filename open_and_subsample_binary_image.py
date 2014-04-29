@@ -36,7 +36,8 @@ driver.Register()
 plt.clf()
 
 # Set file location
-file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/dem_median_filter_kernel_121_crevasse_surface"
+file_name = r"/geog/data/sirius/epsilon/ggwillc/Maximum_surface_filtering/Helheim/222/HELHEIM_222a_dem_maximum_filter_kernel_239_20_percent_reduction_crevasse_surface_20_percent_reduction"
+#file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/dem_median_filter_kernel_121_crevasse_surface"
 #file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/222a_lidar/bin/222a.helheim_post_0.5m.bin"
 #file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
 
@@ -89,10 +90,15 @@ print '~~~~~~~~~~~~~~'
 print 'Subsample 2D array'
 print '~~~~~~~~~~~~~~'
 #image_array_subsample_DATA = image_array[4790:4910, 7000:7120]
-#image_array_subsample_DATA = image_array[4790:4850, 7000:7060]
-#image_array_subsample_DATA = image_array[4790:4910, 7000:7120]
-image_array_subsample_DATA = image_array[7119:7489, 7219:7589]
+
+#image_array_subsample_DATA = image_array[470:13215, 4572:6500] ## HELHEIM
+image_array_subsample_DATA = image_array[470:4572, 6500:13215] ## HELHEIM
 
 fig = plt.figure()
-plt.imshow(image_array_subsample_DATA),plt.colorbar()
-plt.show()
+#plt.imshow(image_array_subsample_DATA),plt.colorbar()
+plt.imshow(image_array),plt.colorbar()
+#plt.show()
+#output_filename = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/HELHEIM_1000x1000_subsample.png'
+output_filename = r'/geog/data/vega/epsilon/ggwillc/HELHEIM_1000x1000_subsample.png'
+plt.savefig(output_filename)
+
