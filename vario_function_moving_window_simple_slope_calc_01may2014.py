@@ -93,12 +93,14 @@ print '~~~~~~~~~~~~~~'
 #image_array_subsample_DATA = image_array[7119:7219, 7219:7319] ##  [i1:i2, j1:j2]
 #image_array_subsample_DATA = image_array[3230:4230, 6117:7117] ## HELHEIM
 image_array_subsample_DATA = image_array[5117:8665, 1209:6028] ## HELHEIM
+print type(image_array_subsample_DATA)
+print shape(image_array_subsample_DATA)
 
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 print 'CHECK OUTPUT DIRECTORY EXISTS'
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-opath = r'/geog/data/arcturus/epsilon/ggwillc/vario_outputs/'
+opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests'
 if os.path.isdir(opath):
 	print "output_path exists"	
 else:
@@ -171,6 +173,7 @@ def vario_stats(bins, var_mean):
 		min_var = -9999.0
 		min_lag = -9999.0
 		return 0, 0, 0, 0
+	# pond, mindest, p1, p2
 	return max_var, min_lag - max_lag, (max_var - min_var) / (min_lag - max_lag), (max_var - min_var) / max_var
 
 
@@ -233,7 +236,7 @@ bins = np.arange(start_bin_value, end_bin_value, bin_size)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 nvars = 4 # number of output variables
 # datout=np.ones((nvars,nxwind,nywind))
-stepsize = 30
+stepsize = 10
 
 imgout = [np.zeros((1 + nxwind // stepsize, 1 + nywind // stepsize)) for i in xrange(nvars)]
 window_iteration=0
@@ -314,7 +317,7 @@ for vv in range(nvars):
 		fig.suptitle('p2 (centre cell)')
 
 	time_stamp = strftime("%H.%M.%S")	
-	image_output_centre_cell =  opath + str(vv+1) + '_centre_cell_output_%s_RANDOM.png' %(time_stamp)
+	image_output_centre_cell =  opath + str(vv+1) + '_centre_cell_output_%s_RANDOM_winsize_%i_stepsize_%i.png' %(time_stamp, winsize, stepsize)
 	#plt.show()
 	fig.savefig(image_output_centre_cell)
 

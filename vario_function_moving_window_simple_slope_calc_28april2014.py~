@@ -42,7 +42,6 @@ plt.clf()
 #file_name = r"/geog/data/sirius/epsilon/ggwillc/Maximum_surface_filtering/Helheim/222/HELHEIM_222a_dem_maximum_filter_kernel_239_20_percent_reduction_crevasse_surface_20_percent_reduction" 
 file_name = r"/geog/data/arcturus/epsilon/ggwillc/Maximum_surface_filtering/Helheim/222/HELHEIM_222a_dem_maximum_filter_kernel_239_20_percent_reduction_crevasse_surface_20_percent_reduction_SUBSAMPLE"
 
-
 # open file
 inds = gdal.Open(file_name, GA_ReadOnly)
 
@@ -81,6 +80,7 @@ print "height: %2.2f" %pixelHeight
 print '~~~~~~~~~~~~~~' 
 print 'Convert image to 2D array'
 print '~~~~~~~~~~~~~~'
+
 band = inds.GetRasterBand(1)
 image_array = band.ReadAsArray(0, 0, cols, rows)
 image_array_name = file_name
@@ -90,9 +90,22 @@ print shape(image_array)
 print '~~~~~~~~~~~~~~' 
 print 'Subsample 2D array'
 print '~~~~~~~~~~~~~~'
-#image_array_subsample_DATA = image_array[7119:7219, 7219:7319]
+#image_array_subsample_DATA = image_array[7119:7219, 7219:7319] ##  [i1:i2, j1:j2]
 #image_array_subsample_DATA = image_array[3230:4230, 6117:7117] ## HELHEIM
-image_array_subsample_DATA = image_array
+image_array_subsample_DATA = image_array[5117:8665, 1209:6028] ## HELHEIM
+
+print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+print 'CHECK OUTPUT DIRECTORY EXISTS'
+print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+
+opath = r'/geog/data/arcturus/epsilon/ggwillc/vario_outputs/'
+if os.path.isdir(opath):
+	print "output_path exists"	
+else:
+	print "output_path DOESN'T exist...\n"
+	os.makedirs(opath)
+	print "...but it does now"
+	
 
 def variogram(image_array_subsample, bins):
 	var_accum = np.zeros(len(bins))
@@ -123,7 +136,8 @@ def random_variogram(image_array_subsample, bins, nsamples=10000):
 	var_mean = np.zeros(len(bins))
 
 	isize, jsize = image_array_subsample.shape
-	
+	#print "isize: %i" %(isize)
+	#print "jsize: %i" %(jsize)
 	for k in xrange(nsamples):
 		i = np.random.randint(isize)
 		j = np.random.randint(jsize)
@@ -189,9 +203,8 @@ if winsize > 1 and winsize%2 != 0:
 	print "WINDOW SIZE VALID"
 else:
 	print "WINDOW SIZE INVALID - MUST BE AN ODD NUMBER AND > 1"
-	
-nywind=len(image_array_subsample_DATA)#)sizeofdatay/winsize
-nxwind=len(image_array_subsample_DATA)#sizeofdatax/winsize
+
+nxwind, nywind = image_array_subsample_DATA.shape
 
 #~~~~~~~~~~~~
 # DEFINE BINS
@@ -216,39 +229,13 @@ bins = np.arange(start_bin_value, end_bin_value, bin_size)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# MAKE ARRAYS OF -9999 FOR POND, MINDEST, P1 AND P2 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-pond_array = np.ones([len(image_array_subsample_DATA),len(image_array_subsample_DATA)])
-pond_array = pond_array - 10000
-mindest_array = np.ones([len(image_array_subsample_DATA),len(image_array_subsample_DATA)])
-mindest_array = mindest_array - 10000
-p1_array = np.ones([len(image_array_subsample_DATA),len(image_array_subsample_DATA)])
-p1_array = p1_array - 10000
-p2_array = np.ones([len(image_array_subsample_DATA),len(image_array_subsample_DATA)])
-p2_array = p2_array - 10000
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# MAKE EMPTY LISTS FOR POND, MINDEST, P1 AND P2 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-pond_LIST = []
-mindest_LIST = []
-p1_LIST = []
-p2_LIST = []
-
-pond_check_LIST = []
-mindest_check_LIST = []
-p1_check_LIST = []
-p2_check_LIST = []
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # IMPLEMENT LOOP FOR MOVING WINDOW TO WORK THROUGH
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 nvars = 4 # number of output variables
 # datout=np.ones((nvars,nxwind,nywind))
-stepsize = 10
+stepsize = 30
 
-imgout = [np.zeros((nxwind // stepsize, nywind // stepsize)) for i in xrange(nvars)]
+imgout = [np.zeros((1 + nxwind // stepsize, 1 + nywind // stepsize)) for i in xrange(nvars)]
 window_iteration=0
 for ii in range(0, nxwind, stepsize):
 	print "ii: %i" %(ii)
@@ -326,8 +313,8 @@ for vv in range(nvars):
 	elif vv == 3:
 		fig.suptitle('p2 (centre cell)')
 
-	time_stamp = strftime("%H.%M.%S")
-	image_output_centre_cell = r'/geog/data/arcturus/epsilon/ggwillc/vario_outputs/' + str(vv+1) + '_centre_cell_output_%s_RANDOM.png' %(time_stamp)
+	time_stamp = strftime("%H.%M.%S")	
+	image_output_centre_cell =  opath + str(vv+1) + '_centre_cell_output_%s_RANDOM.png' %(time_stamp)
 	#plt.show()
 	fig.savefig(image_output_centre_cell)
 

@@ -98,7 +98,7 @@ print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 print 'CHECK OUTPUT DIRECTORY EXISTS'
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-opath = r'/geog/data/arcturus/epsilon/ggwillc/vario_outputs/'
+opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests'
 if os.path.isdir(opath):
 	print "output_path exists"	
 else:
@@ -233,7 +233,7 @@ bins = np.arange(start_bin_value, end_bin_value, bin_size)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 nvars = 4 # number of output variables
 # datout=np.ones((nvars,nxwind,nywind))
-stepsize = 30
+stepsize = 10
 
 imgout = [np.zeros((1 + nxwind // stepsize, 1 + nywind // stepsize)) for i in xrange(nvars)]
 window_iteration=0
@@ -314,7 +314,7 @@ for vv in range(nvars):
 		fig.suptitle('p2 (centre cell)')
 
 	time_stamp = strftime("%H.%M.%S")	
-	image_output_centre_cell =  opath + str(vv+1) + '_centre_cell_output_%s_RANDOM.png' %(time_stamp)
+	image_output_centre_cell =  opath + str(vv+1) + '_centre_cell_output_%s_RANDOM_winsize_%i_stepsize_%i.png' %(time_stamp, winsize, stepsize)
 	#plt.show()
 	fig.savefig(image_output_centre_cell)
 

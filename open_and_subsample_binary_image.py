@@ -89,16 +89,16 @@ print shape(image_array)
 print '~~~~~~~~~~~~~~' 
 print 'Subsample 2D array'
 print '~~~~~~~~~~~~~~'
-#image_array_subsample_DATA = image_array[4790:4910, 7000:7120]
 
-#image_array_subsample_DATA = image_array[470:13215, 4572:6500] ## HELHEIM
-image_array_subsample_DATA = image_array[470:4572, 6500:13215] ## HELHEIM
+#image_array_subsample_DATA = image_array[1505:1568, 7079:7145] ## HELHEIM
+image_array_subsample_DATA = image_array[5117:8665, 1209:6028] ## HELHEIM
+
 
 fig = plt.figure()
 #plt.imshow(image_array_subsample_DATA),plt.colorbar()
-plt.imshow(image_array),plt.colorbar()
+plt.imshow(image_array_subsample_DATA),plt.colorbar()
 #plt.show()
 #output_filename = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/HELHEIM_1000x1000_subsample.png'
-output_filename = r'/geog/data/vega/epsilon/ggwillc/HELHEIM_1000x1000_subsample.png'
+output_filename = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/HELHEIM_subsample_image_max_filter_20_5117.8665_1209.6028.png'
 plt.savefig(output_filename)
 
