@@ -101,8 +101,8 @@ print 'CHECK OUTPUT DIRECTORY EXISTS'
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
 winsize = 479
-stepsize = 1000
-nsample_input = 1000000
+stepsize = 30
+nsample_input = 100000
 
 opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/'
 opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/winsize_%i_stepsize_%i_random_hits_%i/' %(winsize, stepsize, nsample_input)
@@ -173,16 +173,22 @@ def vario_stats(bins, var_mean):
 		max_lag = bins[max1]
 		min_var = var_mean[min1]
 		min_lag = bins[min1]
+		overall_max_var = np.amax(var_mean[:-5])
+		overall_max_var_pos = np.argmax(var_mean[:-5])
+		overall_max_var_lag = bins[overall_max_var_pos]
+		
 	except IndexError:
 		max_var = -9999.0
 		max_lag = -9999.0
 		min_var = -9999.0
 		min_lag = -9999.0
-		return 0, 0, 0, 0
-	# pond, mindest, p1, p2
+		overall_max_var = -9999.0
+		overall_max_var_lag = -9999.0
+		return 0, 0, 0, 0, 0, 0
+	# pond, mindest, p1, p2, overall_max, overall_max_lag
 	assert max_var >= min_var, "Max %f, min %f" % (max_var, min_var)
 	assert min_lag >= max_lag, "Max %f, min %f" % (max_lag, min_lag)
-	return max_var, min_lag - max_lag, (max_var - min_var) / (min_lag - max_lag), (max_var - min_var) / max_var
+	return max_var, min_lag - max_lag, (max_var - min_var) / (min_lag - max_lag), (max_var - min_var) / max_var, overall_max_var, overall_max_var_lag
 
 
 def plot_variogram(window_iteration, bins, variance_mean, ii, jj):
@@ -243,7 +249,7 @@ bins = np.arange(start_bin_value, end_bin_value, bin_size)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # IMPLEMENT LOOP FOR MOVING WINDOW TO WORK THROUGH
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-nvars = 4 # number of output variables
+nvars = 6 # number of output variables
 # datout=np.ones((nvars,nxwind,nywind))
 
 #stepsize = 1000
@@ -313,7 +319,7 @@ for ii in range(0, nxwind, stepsize):
 		for vv in range(nvars):
 			imgout[vv][ii // stepsize, jj // stepsize] = vtuple[vv]
 		
-		plot_variogram(window_iteration, bins, var_mean, ii, jj)
+		#plot_variogram(window_iteration, bins, var_mean, ii, jj)
 		
 # SAVE pond, mindest, p1 and p2 arrays (values given to centre cell of moving window)
 for vv in range(nvars):
@@ -328,7 +334,10 @@ for vv in range(nvars):
 		fig.suptitle('p1 (centre cell)')
 	elif vv == 3:
 		fig.suptitle('p2 (centre cell)')
-
+	elif vv == 4:
+		fig.suptitle('Max variance (centre cell)')
+	elif vv == 5:
+		fig.suptitle('Max variance lag (centre cell)')
 	time_stamp = strftime("%H.%M.%S")	
 	image_output_centre_cell =  opath + str(vv+1) + '_centre_cell_output_%s_RANDOM_winsize_%i_stepsize_%i_nsamples_%i.png' %(time_stamp, winsize, stepsize, nsample_input)
 	#plt.show()
