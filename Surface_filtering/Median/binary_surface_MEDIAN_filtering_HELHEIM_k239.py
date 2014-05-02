@@ -67,7 +67,6 @@ print "origin y: %i" %originY
 print "width: %2.2f" %pixelWidth
 print "height: %2.2f" %pixelHeight
 
-# Set pixel offset.....
 print '~~~~~~~~~~~~~~' 
 print 'Convert image to 2D array'
 print '~~~~~~~~~~~~~~'
@@ -77,39 +76,6 @@ image_array_name = file_name
 print type(image_array)
 print image_array.shape
 
-print "%s resampled by a factor of 0.25" % (image_array_name)
-dem_025_refactor = ndimage.zoom(image_array, 0.25, order=0) ## essentially refactors the array by a factor the order value denotes the interpolation algorithm used
-print dem_025_refactor
-
-#~~~This works to display ~~~#
-display = plt.imshow(dem_025_refactor)
-plt.title(image_array_name + ' (resampled)')
-plt.colorbar(display)
-image_output_original =  r'/home/staff/ggwillc/Desktop/filtering_output_images/'+ 'HELHEIM_222a_original_surface.png'
-plt.savefig(image_output_original)
-#plt.show()
-
-'''
-print '~~~~~~~~~~~~~~'
-print 'Create x and y grids'
-print '~~~~~~~~~~~~~~'
-
-x, y = np.mgrid[0:image_array.shape[0], 0:image_array.shape[1]]
-print ' '
-print 'x:'
-print type(x)
-print x.shape
-print x.size
-print x
-
-print ' '
-print 'y:'
-print type(y)
-print y.shape
-print y.size
-print y
-'''
-
 print '~~~~~~~~~~~~~~'
 print 'Create filter'
 print '~~~~~~~~~~~~~~'
@@ -118,28 +84,9 @@ sizex = kernel
 sizey = kernel 
 
 filter1 = np.ones([kernel,kernel])
-#filter1 = np.ones([sizex,sizey])
 filter1 = filter1/(kernel*kernel)
 print type(filter1)
 print filter1.shape
-
-#print filter1
-#plt.imshow(filter1)
-#plt.show()
-
-#plt.imshow(filter1)
-#plt.show()
-
-print '~~~~~~~~~~~~~~'
-print 'Convolution'
-print '~~~~~~~~~~~~~~'
-
-#method = "_convolution"
-#dem_convolution_filter = signal.convolve(image_array,filter1,mode='same')
-#print dem_convolution_filter.shape
-
-#filtered_image = dem_convolution_filter
-#filtered_image_name = "dem_convolution_filter_kernel_%i" % kernel
 
 print '~~~~~~~~~~~~~~'
 print 'Median'
@@ -153,56 +100,38 @@ filtered_image = dem_median_filter
 filtered_image_name = "HELHEIM_222a_dem_median_filter_kernel_%i" % kernel
 
 print '~~~~~~~~~~~~~~'
-print 'Resample the result and display'
-print '~~~~~~~~~~~~~~'
-
-#print "%s (%s):" % (filtered_image, method)
-#print filtered_image
-
-#print "%s (%s) resampled by a factor of 0.25" % (filtered_image_name, method)
-#dem_filtered_025_refactor = ndimage.zoom(filtered_image, 0.25, order=0) ## essentially refactors the array by a factor the order value denotes the interpolation algorithm used
-#print "%s (%s) resampled for viewing:" % (filtered_image_name, method)
-#print dem_filtered_025_refactor
-
-#~~~This works to display ~~~#
-#display = plt.imshow(dem_filtered_025_refactor)
-#plt.title(filtered_image_name + ' (resampled)')
-#plt.colorbar(display)
-#image_output =  r'/home/staff/ggwillc/Desktop/filtering_output_images/'+ filtered_image_name
-#plt.save(image_output)
-#plt.show()
-#~~~~~~~~~~~~~~~~~#
-
-print '~~~~~~~~~~~~~~'
 print 'Output array creation'
 print '~~~~~~~~~~~~~~'
 
-# original array - filtered array = crevasse array
 median_difference_array = image_array - filtered_image
 median_difference_array_name = filtered_image_name + "_median_difference_array"
 print median_difference_array.shape
 print median_difference_array.size
 
-negative_anomaly_array  = median_difference_array 
+def negative_anomaly_array(array):
+	for i in xrange(len(array)):
+		for j in xrange(len(array)):
+			if array[i,j] > 0:
+				negative_anomaly_array[i,j] = 0
+			else:
+				negative_anomaly_array[i,j] = negative_anomaly_array[i,j]
+	return negative_anomaly_array
+
+def positive_anomaly_array(array):
+	for i in xrange(len(array)):
+		for j in xrange(len(array)):
+			if array[i,j] < 0:
+				positive_anomaly_array[i,j] = 0
+			else:
+				positive_anomaly_array[i,j] = postive_anomaly_array[i,j]
+	return negative_anomaly_array
+	
+negative_anomaly_array  = negative_anomaly_array(median_difference_array)
 negative_anomaly_array_name = filtered_image_name + "_negative_anomaly_array"
 
-for i in xrange(len(negative_anomaly_array)):
-	for j in xrange(len(negative_anomaly_array)):
-		if negative_anomaly_array[i,j] > 0:
-			negative_anomaly_array[i,j] = 0
-		else:
-			negative_anomaly_array[i,j] = negative_anomaly_array[i,j]
-		
-positive_anomaly_array  = median_difference_array
+positive_anomaly_array  = positive_anomaly_array(median_difference_array)
 positive_anomaly_array_name = filtered_image_name + "_positive_anomaly_array"
-
-for i in xrange(len(positive_anomaly_array)):
-	for j in xrange(len(positive_anomaly_array)):
-		if positive_anomaly_array[i,j] < 0:
-			positive_anomaly_array[i,j] = 0
-		else:
-			positive_anomaly_array[i,j] = positive_anomaly_array[i,j]
-
+	
 print '~~~~~~~~~~~~~~'
 print 'Create output directory'
 print '~~~~~~~~~~~~~~'
@@ -234,6 +163,7 @@ outBand.WriteArray(median_difference_array)
 
 # Close raster file
 outDs = None
+outBand = None
 
 #~~~~~~~~
 #negative_anomaly_array
@@ -251,6 +181,7 @@ outBand.WriteArray(negative_anomaly_array)
 
 # Close raster file
 outDs = None
+outBand = None
 
 #~~~~~~~~
 #positive_anomaly_array
@@ -268,34 +199,7 @@ outBand.WriteArray(output_path_positive_anomaly_array)
 
 # Close raster file
 outDs = None
-
-'''
-print '~~~~~~~~~~~~~~'
-print 'Create a slice profile of the three layers'
-print '~~~~~~~~~~~~~~'
-
-# original array slice
-fig = plt.figure()
-ax1=fig.add_subplot(311)
-ax1.plot(y[:,y.shape[0]/2],image_array[:,y.shape[0]/2],'r') # creates a plot with the x axis taken halfway along the x array - the y axis values are from the image-array at the x positions
-ax1.set_title('Unfiltered surface: Helheim 222a')
-#ax1.plot(x[:,x.shape[0]/2],filtered_image[:,x.shape[0]/2],'b')
-
-# filtered array slice
-ax2 = fig.add_subplot(312)
-ax2.plot(y[:,y.shape[0]/2],filtered_image[:,y.shape[0]/2],'b') # creates a plot with the x axis taken halfway along the x array - the y axis values are from the image-array at the x positions
-ax2.set_title('Filtered surface: Helheim 222a')
-
-# difference slice 
-ax3 = fig.add_subplot(313)
-ax3.plot(y[:,y.shape[0]/2],crevasse_array[:,y.shape[0]/2],'g') # creates a plot with the x axis taken halfway along the x array - the y axis values are from the image-array at the x positions
-ax3.set_title('Difference surface: Helheim 222a')
-
-plt.show()
-image_output = r'/home/staff/ggwillc/Desktop/filtering_output_images/' + filtered_image_name + 'slices.pdf'
-plt.savefig(image_output)
-plt.show()
-'''
+outBand = None
 
 print '~~~~~~~~~~~~~~'
 print 'Clear variables'

@@ -93,6 +93,8 @@ print '~~~~~~~~~~~~~~'
 #image_array_subsample_DATA = image_array[7119:7219, 7219:7319] ##  [i1:i2, j1:j2]
 #image_array_subsample_DATA = image_array[3230:4230, 6117:7117] ## HELHEIM
 image_array_subsample_DATA = image_array[5117:8665, 1209:6028] ## HELHEIM
+print type(image_array_subsample_DATA)
+print shape(image_array_subsample_DATA)
 
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 print 'CHECK OUTPUT DIRECTORY EXISTS'
@@ -171,6 +173,7 @@ def vario_stats(bins, var_mean):
 		min_var = -9999.0
 		min_lag = -9999.0
 		return 0, 0, 0, 0
+	# pond, mindest, p1, p2
 	return max_var, min_lag - max_lag, (max_var - min_var) / (min_lag - max_lag), (max_var - min_var) / max_var
 
 

@@ -100,7 +100,13 @@ print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 print 'CHECK OUTPUT DIRECTORY EXISTS'
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests'
+winsize = 479
+stepsize = 1000
+nsample_input = 1000000
+
+opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/'
+opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/winsize_%i_stepsize_%i_random_hits_%i/' %(winsize, stepsize, nsample_input)
+
 if os.path.isdir(opath):
 	print "output_path exists"	
 else:
@@ -119,12 +125,12 @@ def variogram(image_array_subsample, bins):
 	for i in xrange(isize):
 		for j in xrange(jsize):
 			value = image_array_subsample[i,j]
-			img_diff_abs = (image_array_subsample - value)**2
+			img_diff_abs = (image_array_subsample - value)**2 # calc difference between every position in array and the value (done in one calculation)
 			for i2 in xrange(i, isize):
 				for j2 in xrange(jsize):
 					lag_val = ((i2 - i) ** 2 + (j2 - j) ** 2) ** .5
 					bin_No = int((lag_val/bin_size)-1)
-					var_accum[bin_No] += img_diff_abs[i2,j2]
+					var_accum[bin_No] += img_diff_abs[i2,j2] # get the value of img_diff_abs at position [i2,j2]
 					var_accum_counter[bin_No] += 1
 					
 	# At end of array, divide accumulations by individual counters to give mean variance and plot
@@ -156,10 +162,10 @@ def random_variogram(image_array_subsample, bins, nsamples=10000):
 
 
 def vario_stats(bins, var_mean):
-	diffs = var_mean[1:] - var_mean[:-1]
-	signdiffs = np.diff(np.sign(diffs))
-	maxes = np.where(signdiffs > 0)[0] + 1
-	mins = np.where(signdiffs < 0)[0] + 1
+	diffs = np.diff(var_mean) # calc difference between values in the array
+	signdiffs = np.diff(np.sign(diffs)) # get the sign of the differences
+	maxes = np.where(signdiffs < 0)[0] + 1 # if diff between values for the position after that in which we are in is negative, then we have a maximum
+	mins = np.where(signdiffs > 0)[0] + 1 # if diff between values for the position after that in which we are in is positive, then we have a minimum
 	try:
 		max1 = maxes[0]
 		min1 = mins[mins > max1][0]
@@ -174,19 +180,22 @@ def vario_stats(bins, var_mean):
 		min_lag = -9999.0
 		return 0, 0, 0, 0
 	# pond, mindest, p1, p2
+	assert max_var >= min_var, "Max %f, min %f" % (max_var, min_var)
+	assert min_lag >= max_lag, "Max %f, min %f" % (max_lag, min_lag)
 	return max_var, min_lag - max_lag, (max_var - min_var) / (min_lag - max_lag), (max_var - min_var) / max_var
 
 
-def plot_variogram(bins, variance_mean):
+def plot_variogram(window_iteration, bins, variance_mean, ii, jj):
 	plt.clf()
 	plt.plot(bins,variance_mean)
 	#plt.title('Vario-plot: array of length %i' %(len(image_array_subsample)))
-	plt.title('Vario-plot %i | Array length: %i ' %(window_iteration, len(image_array_subsample)))
+	plt.title('Vario-plot %i | pos (%i, %i)' %(window_iteration,ii,jj))
+	#plt.title('pos (%f, %f)' %(ii,jj))
 	plt.xlabel('Lag (binned)')
 	plt.ylabel('Variance')
 	time_stamp = strftime("%H.%M.%S")
 	#vario_plot =  r'/home/staff/ggwillc/Desktop/variofunction_test_outputs/'+ 'test_vario_plot_%s.png' %(time_stamp)
-	vario_plot_windows =  r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/'+ 'vario_plot_NEW_%s_window_iteration_%s.png' %(time_stamp,window_iteration)
+	vario_plot_windows =  r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/'+ 'vario_plot_RANDOM_%s_window_iteration_%s.png' %(time_stamp,window_iteration)
 	plt.savefig(vario_plot_windows)
 	#plt.show()
 
@@ -200,7 +209,7 @@ image_array_subsample_DATA[indNan]=10.
 # SET MOVING WINDOW UP
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-winsize = 239
+#winsize = 479#119#239
 
 if winsize > 1 and winsize%2 != 0:
 	print "WINDOW SIZE VALID"
@@ -220,7 +229,7 @@ max_lag = math.sqrt(2)*winsize
 
 end_bin_value = max_lag
 print 'max_lag: %.4f' %(max_lag)
-bin_no = 20.0
+bin_no = 40.0
 bin_int = int(bin_no)
 print 'bin_no: %d' %(bin_no)
 bin_size = (max_lag/bin_no)
@@ -236,7 +245,8 @@ bins = np.arange(start_bin_value, end_bin_value, bin_size)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 nvars = 4 # number of output variables
 # datout=np.ones((nvars,nxwind,nywind))
-stepsize = 10
+
+#stepsize = 1000
 
 imgout = [np.zeros((1 + nxwind // stepsize, 1 + nywind // stepsize)) for i in xrange(nvars)]
 window_iteration=0
@@ -275,7 +285,8 @@ for ii in range(0, nxwind, stepsize):
 		window_iteration += 1
 		
 		#var_mean = variogram(datwind, bins)
-		var_mean = random_variogram(datwind, bins)
+		#nsample_input = 1000000
+		var_mean = random_variogram(datwind, bins, nsample_input)
 		vtuple = vario_stats(bins, var_mean)
 		
 		# print "v1 (pond): %f" %(v1)
@@ -302,6 +313,8 @@ for ii in range(0, nxwind, stepsize):
 		for vv in range(nvars):
 			imgout[vv][ii // stepsize, jj // stepsize] = vtuple[vv]
 		
+		plot_variogram(window_iteration, bins, var_mean, ii, jj)
+		
 # SAVE pond, mindest, p1 and p2 arrays (values given to centre cell of moving window)
 for vv in range(nvars):
 	fig = plt.figure()
@@ -317,7 +330,7 @@ for vv in range(nvars):
 		fig.suptitle('p2 (centre cell)')
 
 	time_stamp = strftime("%H.%M.%S")	
-	image_output_centre_cell =  opath + str(vv+1) + '_centre_cell_output_%s_RANDOM_winsize_%i_stepsize_%i.png' %(time_stamp, winsize, stepsize)
+	image_output_centre_cell =  opath + str(vv+1) + '_centre_cell_output_%s_RANDOM_winsize_%i_stepsize_%i_nsamples_%i.png' %(time_stamp, winsize, stepsize, nsample_input)
 	#plt.show()
 	fig.savefig(image_output_centre_cell)
 
@@ -352,7 +365,7 @@ for vv in range(nvars):
 		fig.suptitle('p2 (moving window mean)')
 	
 	time_stamp = strftime("%H.%M.%S")
-	image_output_moving_window = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/' + variable_value + '_moving_window_mean_output_%s.png' %(time_stamp)
+	image_output_moving_window = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/' + variable_value + '_moving_window_mean_output_%s_ASSERT_samples_%i.png' %(time_stamp, nsample_input)
 	#plt.show()
 	fig.savefig(image_output_moving_window)
 	
