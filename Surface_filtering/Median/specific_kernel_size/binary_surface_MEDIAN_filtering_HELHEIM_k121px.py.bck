@@ -186,7 +186,7 @@ print "data_type: %s" %(datatype)
 print '~~~~~~~~~~~~~~'
 print 'Create filter'
 print '~~~~~~~~~~~~~~'
-kernel = 241# 239 #121
+kernel = 121# 239 #121
 sizex = kernel 
 sizey = kernel 
 

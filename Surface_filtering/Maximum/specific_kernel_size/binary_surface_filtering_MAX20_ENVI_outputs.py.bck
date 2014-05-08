@@ -3,7 +3,7 @@
 '''
 
 ####
-#### MEDIAN filtering
+#### MAXIMUM filtering
 #### @author Chris 07/05/14
 ####
 
@@ -24,9 +24,6 @@ from scipy import signal # for convolution function
 from scipy import ndimage # for resampling image
 from matplotlib import cm # colour mapping
 
-#import home.staff.ggwillc.Desktop.Python_scripts.python_functions.raster_functions
-
-# start timing
 startTime = time.time()
 
 # Register driver
@@ -35,11 +32,11 @@ driver = gdal.GetDriverByName('ENVI') ## http://www.gdal.org/formats_list.html
 driver.Register()
 
 ## Set file location
-file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/201a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
+#file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/201a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
 #file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/203a/post_0.5/bin/203a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
 
 #file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/222a_lidar/bin/222a.helheim_post_0.5m.bin"
-#file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
+file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
 
 '''
 print "Data collection site (e.g. KNS or Helheim etc.):"
@@ -51,8 +48,8 @@ sys.stdout.flush()
 day = raw_input()
 '''
 
-site = 'KNS'
-day = '201'
+site = 'Helheim'
+day = '223'
 
 #~~~~~~~~~~~~~~~~
 #Raster Functions
@@ -146,23 +143,12 @@ def data_to_raster(raster, array):
 	return raster_data
 	
 	
-def negative_anomaly_array(array):
-	negative_anomaly_array = array.copy()
-	negative_anomaly_array[array > 0] = 0
-	return negative_anomaly_array
-
-
-def positive_anomaly_array(array):
-	positive_anomaly_array = array.copy()
-	positive_anomaly_array[array < 0] = 0
-	return positive_anomaly_array
-
-
 print '~~~~~~~~~~~~~~'
 print 'Open file'
 print '~~~~~~~~~~~~~~'
 
 file_1 = open_file_gdal(file_name)
+
 
 print '~~~~~~~~~~~~~~'
 print 'Get image size'
@@ -170,11 +156,13 @@ print '~~~~~~~~~~~~~~'
 
 cols_1, rows_1, bands_1 = image_size(file_1)
 
+
 print '~~~~~~~~~~~~~~'
 print 'Get georeference information'
 print '~~~~~~~~~~~~~~'
 
 geotransform_1, projection_1 = georef_info(file_1)
+
 
 print '~~~~~~~~~~~~~~' 
 print 'Convert image to 2D array'
@@ -183,10 +171,11 @@ print '~~~~~~~~~~~~~~'
 image_array, image_array_name, bands, datatype = convert_to_2darray(file_1, cols_1, rows_1, file_name)
 print "data_type: %s" %(datatype)
 
+
 print '~~~~~~~~~~~~~~'
 print 'Create filter'
 print '~~~~~~~~~~~~~~'
-kernel = 241# 239 #121
+kernel = 121# 239 #121
 sizex = kernel 
 sizey = kernel 
 
@@ -195,68 +184,50 @@ filter1 = filter1/(kernel*kernel)
 print type(filter1)
 print filter1.shape
 
-print '~~~~~~~~~~~~~~'
-print 'Median'
-print '~~~~~~~~~~~~~~'
-
-method = "_median"
-dem_median_filter = signal.medfilt2d(image_array,kernel_size=kernel)
-print dem_median_filter.shape
-
-filtered_image = dem_median_filter
-filtered_image_name = "HELHEIM_222a_dem_median_filter_kernel_%i" % kernel
 
 print '~~~~~~~~~~~~~~'
-print 'Output array creation'
+print 'Maximum'
 print '~~~~~~~~~~~~~~'
 
-median_difference_array = image_array - filtered_image
-median_difference_array_name = filtered_image_name + "_median_difference_array"
-print median_difference_array.shape
-print median_difference_array.size
-	
-negative_anomaly_array  = negative_anomaly_array(median_difference_array)
-negative_anomaly_array_name = filtered_image_name + "_negative_anomaly_array"
+print "Calculating...."
+method = "_max"
+dem_maximum_filter = ndimage.filters.maximum_filter(image_array,size=(kernel,kernel),mode='reflect')
+print dem_maximum_filter.shape
 
-positive_anomaly_array  = positive_anomaly_array(median_difference_array)
-positive_anomaly_array_name = filtered_image_name + "_positive_anomaly_array"
-	
+filtered_image = dem_maximum_filter
+filtered_image_name = "%s_%s_dem%s_filter_kernel_%i" %(site, day, method, kernel)
+
+
+print '~~~~~~~~~~~~~~'
+print 'Surface differencing 20% less'
+print '~~~~~~~~~~~~~~'
+
+max_difference_array = image_array - filtered_image
+max_difference_array_20_temp = (max_difference_array/100)*20
+max_difference_array_20 = max_difference_array - max_difference_array_20_temp
+
+max_difference_name = filtered_image_name + "_max_diff_20_percent_reduction"
+print max_difference_array.shape
+print max_difference_array.size
+
+		
 print '~~~~~~~~~~~~~~'
 print 'Create output directory'
 print '~~~~~~~~~~~~~~'
-output_directory = r'/geog/data/sirius/epsilon/ggwillc/Median_surface_filtering/%s/%s/difference_surfaces/' %(site, day)
+output_directory = r'/geog/data/sirius/epsilon/ggwillc/Maximum_surface_filtering/%s/%s/difference_surfaces/' %(site, day)
 create_output_directory(output_directory)
 
 print '~~~~~~~~~~~~~~'
 print 'Export the array subtractions as a new ENVI binary file'
 print '~~~~~~~~~~~~~~'
 
-
-#difference_raster_format = array_to_raster_format('difference_surface.bin', cols_1, rows_1,  bands_1, 'GDT_Float32') # datatypemust be a GDALDataType..
-
 print '~~~~~~~~'
-print 'Median_difference_array output'
+print 'max_difference_array output'
 print '~~~~~~~~'
-median_diff_output_name = "%smedian_diff_array_kernel_%i.bin" %(output_directory, kernel)
-median_diff_array_structure = array_to_raster_format(median_diff_output_name,cols_1,rows_1,bands_1,GDT_Float32)
-median_diff_array_structure_proj = project_raster(median_diff_array_structure, geotransform_1, projection_1)
-median_diff_output = data_to_raster(median_diff_array_structure_proj, median_difference_array)
-
-print '~~~~~~~~'
-print 'negative_anomaly_array output'
-print '~~~~~~~~'
-negative_anomaly_output_name = "%snegative_anomaly_array_kernel_%i.bin" %(output_directory, kernel) 
-negative_anomaly_array_structure = array_to_raster_format(negative_anomaly_output_name,cols_1,rows_1,bands_1,GDT_Float32)
-negative_anomaly_array_structure_proj = project_raster(negative_anomaly_array_structure, geotransform_1, projection_1)
-negative_anomaly_output = data_to_raster(negative_anomaly_array_structure_proj, negative_anomaly_array)
-
-print '~~~~~~~~'
-print 'positive_anomaly_array output'
-print '~~~~~~~~'
-positive_anomaly_output_name = "%spositive_anomaly_array_kernel_%i.bin" %(output_directory, kernel) 
-positive_anomaly_array_structure = array_to_raster_format(positive_anomaly_output_name,cols_1,rows_1,bands_1,GDT_Float32)
-positive_anomaly_array_structure_proj = project_raster(positive_anomaly_array_structure, geotransform_1, projection_1)
-positive_anomaly_output = data_to_raster(positive_anomaly_array_structure_proj, positive_anomaly_array)
+max_diff_output_name = "%s%s.bin" %(output_directory, max_difference_name)
+max_diff_array_structure = array_to_raster_format(max_diff_output_name,cols_1,rows_1,bands_1,GDT_Float32)
+max_diff_array_structure_proj = project_raster(max_diff_array_structure, geotransform_1, projection_1)
+max_diff_output = data_to_raster(max_diff_array_structure_proj, max_difference_array)
 
 # Close raster file
 outDs = None
