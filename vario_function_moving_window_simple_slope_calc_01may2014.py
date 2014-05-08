@@ -101,8 +101,8 @@ print 'CHECK OUTPUT DIRECTORY EXISTS'
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
 winsize = 479
-stepsize = 30
-nsample_input = 100000
+stepsize = 60
+nsample_input = 1000000
 
 opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/'
 opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/winsize_%i_stepsize_%i_random_hits_%i/' %(winsize, stepsize, nsample_input)
@@ -235,7 +235,7 @@ max_lag = math.sqrt(2)*winsize
 
 end_bin_value = max_lag
 print 'max_lag: %.4f' %(max_lag)
-bin_no = 40.0
+bin_no = 20.0
 bin_int = int(bin_no)
 print 'bin_no: %d' %(bin_no)
 bin_size = (max_lag/bin_no)

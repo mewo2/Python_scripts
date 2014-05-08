@@ -101,8 +101,8 @@ print 'CHECK OUTPUT DIRECTORY EXISTS'
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
 winsize = 479
-stepsize = 1000
-nsample_input = 1000000
+stepsize = 30
+nsample_input = 100000
 
 opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/'
 opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/winsize_%i_stepsize_%i_random_hits_%i/' %(winsize, stepsize, nsample_input)
@@ -319,7 +319,7 @@ for ii in range(0, nxwind, stepsize):
 		for vv in range(nvars):
 			imgout[vv][ii // stepsize, jj // stepsize] = vtuple[vv]
 		
-		plot_variogram(window_iteration, bins, var_mean, ii, jj)
+		#plot_variogram(window_iteration, bins, var_mean, ii, jj)
 		
 # SAVE pond, mindest, p1 and p2 arrays (values given to centre cell of moving window)
 for vv in range(nvars):
