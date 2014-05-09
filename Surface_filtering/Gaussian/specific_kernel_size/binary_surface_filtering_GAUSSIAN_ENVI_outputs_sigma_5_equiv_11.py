@@ -3,8 +3,8 @@
 '''
 
 ####
-#### MEDIAN filtering
-#### @author Chris 07/05/14
+#### Gaussian filtering
+#### @author Chris 09/05/14
 ####
 
 #
@@ -32,11 +32,11 @@ driver = gdal.GetDriverByName('ENVI') ## http://www.gdal.org/formats_list.html
 driver.Register()
 
 ## Set file location
-#file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/201a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
+file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/201a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
 #file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/203a/post_0.5/bin/203a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
 
 #file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/222a_lidar/bin/222a.helheim_post_0.5m.bin"
-file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
+#file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
 
 '''
 print "Data collection site (e.g. KNS or Helheim etc.):"
@@ -48,8 +48,8 @@ sys.stdout.flush()
 day = raw_input()
 '''
 
-site = 'Helheim'
-day = '223'
+site = 'KNS'
+day = '201'
 
 #~~~~~~~~~~~~~~~~
 #Raster Functions
@@ -172,74 +172,54 @@ image_array, image_array_name, bands, datatype = convert_to_2darray(file_1, cols
 print "data_type: %s" %(datatype)
 
 
-print '~~~~~~~~~~~~~~'
-print 'Create filter'
-print '~~~~~~~~~~~~~~'
-kernel = 11# 239 #121
-sizex = kernel 
-sizey = kernel 
-
-filter1 = np.ones([kernel,kernel])
-filter1 = filter1/(kernel*kernel)
-print type(filter1)
-print filter1.shape
-
-
-print '~~~~~~~~~~~~~~'
-print 'Maximum'
-print '~~~~~~~~~~~~~~'
+print '~~~~~~~~'
+print 'Gaussian'
+print '~~~~~~~~'
 
 print "Calculating...."
-method = "_max"
-dem_maximum_filter = ndimage.filters.maximum_filter(image_array,size=(kernel,kernel),mode='reflect')
-print dem_maximum_filter.shape
+method = "_gaussian"
+order_value = 0
 
-filtered_image = dem_maximum_filter
-filtered_image_name = "%s_%s_dem%s_filter_kernel_%i" %(site, day, method, kernel)
+sigma = 5 # pixels either side of point so use 30 for a 'window' of 60
+
+dem_gaussian_filter = ndimage.filters.gaussian_filter(image_array,sigma,order=order_value,mode='reflect')
+print dem_gaussian_filter.shape
+
+filtered_image = dem_gaussian_filter
+filtered_image_name = "%s_%s_dem%s_filter_sigma_%i_order_%i" %(site, day, method, sigma, order_value)
+
 
 print '~~~~~~~~~~~~~~'
-print 'Surface differencing 10% less'
+print 'Surface differencing'
 print '~~~~~~~~~~~~~~'
 
-max_difference_array = image_array - filtered_image
-max_difference_array_10_temp = (max_difference_array/100)*10
-max_difference_array = max_difference_array - max_difference_array_10_temp
+gaussian_difference_array = image_array - filtered_image
+gaussian_difference_name = filtered_image_name + "_diff"
+print gaussian_difference_array.shape
+print gaussian_difference_array.size
 
-max_difference_name = filtered_image_name + "_max_diff_10_percent_reduction"
-print max_difference_array.shape
-print max_difference_array.size
 
-'''
-print '~~~~~~~~~~~~~~'
-print 'Surface differencing 20% less'
-print '~~~~~~~~~~~~~~'
-
-max_difference_array = image_array - filtered_image
-max_difference_array_20_temp = (max_difference_array/100)*20
-max_difference_array_20 = max_difference_array - max_difference_array_20_temp
-
-max_difference_name = filtered_image_name + "_max_diff_20_percent_reduction"
-print max_difference_array.shape
-print max_difference_array.size
-'''
-		
 print '~~~~~~~~~~~~~~'
 print 'Create output directory'
 print '~~~~~~~~~~~~~~'
-output_directory = r'/geog/data/sirius/epsilon/ggwillc/Maximum_surface_filtering/%s/%s/difference_surfaces/' %(site, day)
+
+output_directory = r'/geog/data/sirius/epsilon/ggwillc/Gaussian_surface_filtering/%s/%s/difference_surfaces/' %(site, day)
 create_output_directory(output_directory)
+
 
 print '~~~~~~~~~~~~~~'
 print 'Export the array subtractions as a new ENVI binary file'
 print '~~~~~~~~~~~~~~'
 
+
 print '~~~~~~~~'
 print 'max_difference_array output'
 print '~~~~~~~~'
-max_diff_output_name = "%s%s.bin" %(output_directory, max_difference_name)
-max_diff_array_structure = array_to_raster_format(max_diff_output_name,cols_1,rows_1,bands_1,GDT_Float32)
-max_diff_array_structure_proj = project_raster(max_diff_array_structure, geotransform_1, projection_1)
-max_diff_output = data_to_raster(max_diff_array_structure_proj, max_difference_array)
+
+gaussian_diff_output_name = "%s%s.bin" %(output_directory, gaussian_difference_name)
+gaussian_diff_array_structure = array_to_raster_format(gaussian_diff_output_name,cols_1,rows_1,bands_1,GDT_Float32)
+gaussian_diff_array_structure_proj = project_raster(gaussian_diff_array_structure, geotransform_1, projection_1)
+gaussian_diff_output = data_to_raster(gaussian_diff_array_structure_proj, gaussian_difference_array)
 
 # Close raster file
 outDs = None

@@ -3,7 +3,7 @@
 '''
 
 ####
-#### MEDIAN filtering
+#### MAX filtering
 #### @author Chris 07/05/14
 ####
 
