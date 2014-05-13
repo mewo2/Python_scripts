@@ -35,11 +35,11 @@ driver = gdal.GetDriverByName('ENVI') ## http://www.gdal.org/formats_list.html
 driver.Register()
 
 ## Set file location
-#file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/201a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
+file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/201a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
 #file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/203a/post_0.5/bin/203a.wholeGlacier.0.5.bin" # the r escapes numbers (and special characters like capital letters) in the pathname
 
 #file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/222a_lidar/bin/222a.helheim_post_0.5m.bin"
-file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
+#file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
 
 '''
 print "Data collection site (e.g. KNS or Helheim etc.):"
@@ -204,7 +204,7 @@ dem_median_filter = signal.medfilt2d(image_array,kernel_size=kernel)
 print dem_median_filter.shape
 
 filtered_image = dem_median_filter
-filtered_image_name = "HELHEIM_222a_dem_median_filter_kernel_%i" % kernel
+filtered_image_name = "%s_%s_dem_median_filter_kernel_%i" % (site,day,kernel)
 
 print '~~~~~~~~~~~~~~'
 print 'Output array creation'

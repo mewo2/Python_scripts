@@ -51,8 +51,8 @@ sys.stdout.flush()
 day = raw_input()
 '''
 
-site = 'Helheim'
-day = '223'
+site = 'KNS'
+day = '201'
 
 #~~~~~~~~~~~~~~~~
 #Raster Functions
