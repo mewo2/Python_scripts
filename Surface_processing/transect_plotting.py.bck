@@ -1,19 +1,41 @@
 import numpy as np
 from matplotlib import pyplot as plt # for ploting
 import matplotlib as mpl
+
 site = 'Helheim'
 output = r'/geog/data/sirius/epsilon/ggwillc/filter_transects/%s/%s_transect_plots' %(site, site)
 transect_number = 1
-filter_type = 'max'
 method = 'Maximum'
+filter_type = 'max'
 window_size = 241
 px = 0.5
-kernel = window_size*px
+
+
+def gaussian_settings(window_size):
+	kernel = window_size
+	return kernel
+
+	
+def normal_window_settings(window_size, px):
+	kernel =  window_size*px
+	return kernel
+
+
+#GAUSSIAN
+#kernel = gaussian_settings(window_size)
+#transect = "trn%i_%s_sigma_%ipx.txt" %(transect_number, filter_type, window_size)
+
+#Max
+kernel = normal_window_settings(window_size, px)
+transect = "trn%i_%s_kernel_%ipx.txt" %(transect_number, filter_type, window_size)
+
+#Median
+'''
+kernel = normal_window_settings(window_size, px)
+transect = "trn%i_%s_%ipx.txt" %(transect_number, filter_type, window_size)
+'''
 
 data_path = r'/geog/data/sirius/epsilon/ggwillc/filter_transects/%s' %(site)
-
-transect = "trn%i_%s_kernel_%i.txt" %(transect_number, filter_type, window_size)
-
 transect_location = "%s/%s" %(data_path, transect)
 print transect_location
 
@@ -22,22 +44,22 @@ f_np = np.loadtxt(transect_location, skiprows=3, usecols = (0,1))
 
 x = f_np [0:600,0]
 y = f_np [0:600,1]
+x_m = f_np [0:600,0]/2
 
-
-fig = plt.figure()
+fig = plt.figure(figsize=(14,5))
 mpl.axes.set_default_color_cycle(['b'])
 ax = fig.add_subplot(111) # add a subplot in position 111 (rows/cols/position) to figure called "ax"
-ax.plot(x,y) 
-ax.set_title("%s surface anomaly : Kernel %d m : Transect %i : %s " %(method, kernel, transect_number, site))
-plt.xlabel('Metres along transect')
-plt.ylabel('%s surface anomaly' %(method))
-#name = "test" # set file name to save
-#output = r'/home/staff/ggwillc/Desktop/'
-#plt.savefig(output) 
-plt.show() 
+ax.plot(x_m,y) 
+ax.set_title("%s surface anomaly : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site))
+plt.xlabel('Distance along transect (m)')
+plt.ylabel('%s surface anomaly (m)' %(method))
 
+name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s.pdf" %(method, kernel, transect_number, site)
+output_path_complete = "%s/%s" %(output,name)
+plt.savefig(output_path_complete, format='pdf') 
+#plt.show() 
 
-# Limit axis
-# Label axis
+print "Plot saved --- script complete"
+
 # line thickness
-# line colour
+

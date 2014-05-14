@@ -12,10 +12,11 @@ plt.clf()
 
 # read in file
 data_path = r'/geog/data/sirius/epsilon/ggwillc/FFT_1D/transects'
-transect_number = 1
-site = 'Helheim'
-transect = "helheim_222a_median_difference_121kernel_TRANSECT_%i_ASCII.txt" %(transect_number)
-output = r'/geog/data/sirius/epsilon/ggwillc/FFT_1D/helheim_FFT_1D_plots'
+transect_number = 3
+site = 'KNS'
+winsize = 121
+transect = "kns_201_median_difference_%ikernel_TRANSECT_%i_ASCII.txt" %(winsize, transect_number)
+output = r'/geog/data/sirius/epsilon/ggwillc/FFT_1D/%s_FFT_1D_plots/kernel_%ipx' %(site, winsize)
 pixel_size = 0.5
 
 transect_location = "%s/%s" %(data_path, transect)

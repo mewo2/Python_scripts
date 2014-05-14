@@ -6,10 +6,10 @@ import matplotlib as mpl
 
 site = 'KNS'
 output = r'/geog/data/sirius/epsilon/ggwillc/filter_transects/%s/%s_transect_plots' %(site, site)
-transect_number = 3
-method = 'Gaussian'
-filter_type = 'gaussian'
-window_size = 120
+transect_number = 1
+method = 'Gaussian' # Maximum Median
+filter_type = 'gaussian' # max median
+window_size = 120 # 241
 px = 0.5
 
 
@@ -22,22 +22,39 @@ def normal_window_settings(window_size, px):
 	kernel =  window_size*px
 	return kernel
 
+## ~~~~~~~~~~~~~~~~~~~
 
-#GAUSSIAN
+#Gaussian
 
 kernel = gaussian_settings(window_size)
 transect = "trn%i_%s_sigma_%ipx.txt" %(transect_number, filter_type, window_size)
+name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s.pdf" %(method, kernel, transect_number, site)
+plot_title = "%s difference surface : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
 
 #Max
 '''
 kernel = normal_window_settings(window_size, px)
 transect = "trn%i_%s_kernel_%i.txt" %(transect_number, filter_type, window_size)
+name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s.pdf" %(method, kernel, transect_number, site)
+plot_title = "%s difference surface : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
 '''
 #Median
 '''
 kernel = normal_window_settings(window_size, px)
 transect = "trn%i_%s_kernel_%i.txt" %(transect_number, filter_type, window_size)
+name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s.pdf" %(method, kernel, transect_number, site)
+plot_title = "%s negative surface anomaly : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
 '''
+
+#Median pos neg
+'''
+kernel = normal_window_settings(window_size, px)
+transect = "posneg_diff_trn%i_%s_%ipx.txt" %(transect_number, filter_type, window_size)
+name = "%s_difference_surface__Kernel_%dm__Transect_%i__%s.pdf" %(method, kernel, transect_number, site)
+plot_title = "%s difference surface : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
+'''
+## ~~~~~~~~~~~~~~~~~~~
+
 data_path = r'/geog/data/sirius/epsilon/ggwillc/filter_transects/%s' %(site)
 transect_location = "%s/%s" %(data_path, transect)
 
@@ -58,11 +75,12 @@ fig = plt.figure(figsize=(14,5))
 mpl.axes.set_default_color_cycle(['b'])
 ax = fig.add_subplot(111) # add a subplot in position 111 (rows/cols/position) to figure called "ax"
 ax.plot(x_m,y) 
-ax.set_title("%s surface anomaly : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site))
+
+ax.set_title(plot_title)
+
 plt.xlabel('Distance along transect (m)')
 plt.ylabel('%s surface anomaly (m)' %(method))
 
-name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s.pdf" %(method, kernel, transect_number, site)
 output_path_complete = "%s/%s" %(output,name)
 plt.savefig(output_path_complete, format='pdf') 
 #plt.show() 
