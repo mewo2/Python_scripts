@@ -7,7 +7,7 @@ import pylab
 
 site = 'Helheim'
 output = r'/geog/data/sirius/epsilon/ggwillc/filter_transects/%s/%s_transect_plots' %(site, site)
-transect_number = 1
+transect_number = 2
 method = 'Median' # Gaussian Maximum
 filter_type = 'median' # gaussian max
 window_size = 241 # 120
@@ -50,7 +50,7 @@ plot_title = "%s negative surface anomaly : Kernel %d m : Transect %i : %s" %(me
 
 kernel = normal_window_settings(window_size, px)
 transect = "posneg_diff_trn%i_%s_%ipx_REDO.txt" %(transect_number, filter_type, window_size)
-name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s_REDO.pdf" %(method, kernel, transect_number, site)
+name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s_REDO_same_line_as_med_pos_neg.pdf" %(method, kernel, transect_number, site)
 plot_title = "%s negative surface anomaly : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
 
 #Median pos neg
@@ -77,6 +77,7 @@ f_np = np.loadtxt(transect_location, skiprows=3, usecols = (0,1))
 
 x = f_np [0:600,0]
 y = f_np [0:600,1]
+y[y>0] = 0
 x_m = f_np [0:600,0]/2
 
 fig = plt.figure(figsize=(14,5))

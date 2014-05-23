@@ -5,12 +5,12 @@ from matplotlib import pyplot as plt # for ploting
 import matplotlib as mpl
 import pylab
 
-site = 'Helheim'
+site = 'KNS'
 output = r'/geog/data/sirius/epsilon/ggwillc/filter_transects/%s/%s_transect_plots' %(site, site)
 transect_number = 1
-method = 'Median' # Gaussian Maximum
-filter_type = 'median' # gaussian max
-window_size = 241 # 120
+method = 'Median' # Maximum Median
+filter_type = 'median' # max median
+window_size = 241 # 241
 px = 0.5
 
 
@@ -23,45 +23,48 @@ def normal_window_settings(window_size, px):
 	kernel =  window_size*px
 	return kernel
 
-# ~~~~~~~~~~~~~
+## ~~~~~~~~~~~~~~~~~~~
 
 #Gaussian
 '''
 kernel = gaussian_settings(window_size)
-transect = "trn%i_%s_sigma_%i.txt" %(transect_number, filter_type, window_size)
+transect = "trn%i_%s_sigma_%ipx_REDO.txt" %(transect_number, filter_type, window_size)
 name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s_REDO.pdf" %(method, kernel, transect_number, site)
 plot_title = "%s difference surface : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
 '''
 #Max
 '''
 kernel = normal_window_settings(window_size, px)
-transect = "trn%i_%s_kernel_%ipx.txt" %(transect_number, filter_type, window_size)
+transect = "trn%i_%s_kernel_%i_REDO.txt" %(transect_number, filter_type, window_size)
 name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s_REDO.pdf" %(method, kernel, transect_number, site)
 plot_title = "%s difference surface : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
 '''
 #Median
 '''
 kernel = normal_window_settings(window_size, px)
-transect = "trn%i_%s_%ipx.txt" %(transect_number, filter_type, window_size)
+transect = "trn%i_%s_kernel_%i_NEG_REDO.txt" %(transect_number, filter_type, window_size)
+print transect
 name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s_REDO.pdf" %(method, kernel, transect_number, site)
 plot_title = "%s negative surface anomaly : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
 '''
-#Median EXTRA (uses same data as for median posneg)
+
+#Median EXTRA (uses same data as for median posneg) (turn on y conditional below!)
 
 kernel = normal_window_settings(window_size, px)
 transect = "posneg_diff_trn%i_%s_%ipx_REDO.txt" %(transect_number, filter_type, window_size)
-name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s_REDO.pdf" %(method, kernel, transect_number, site)
+print transect
+name = "%s_surface_anomaly__Kernel_%dm__Transect_%i__%s_REDO_same_line_as_med_pos_neg.pdf" %(method, kernel, transect_number, site)
 plot_title = "%s negative surface anomaly : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
+
 
 #Median pos neg
 '''
 kernel = normal_window_settings(window_size, px)
 transect = "posneg_diff_trn%i_%s_%ipx_REDO.txt" %(transect_number, filter_type, window_size)
-print transect
 name = "%s_difference_surface__Kernel_%dm__Transect_%i__%s_REDO.pdf" %(method, kernel, transect_number, site)
 plot_title = "%s difference surface : Kernel %d m : Transect %i : %s" %(method, kernel, transect_number, site)
 '''
-# ~~~~~~~~~~~~~
+## ~~~~~~~~~~~~~~~~~~~
 
 data_path = r'/geog/data/sirius/epsilon/ggwillc/filter_transects/%s' %(site)
 transect_location = "%s/%s" %(data_path, transect)
@@ -77,6 +80,7 @@ f_np = np.loadtxt(transect_location, skiprows=3, usecols = (0,1))
 
 x = f_np [0:600,0]
 y = f_np [0:600,1]
+y[y>0] = 0
 x_m = f_np [0:600,0]/2
 
 fig = plt.figure(figsize=(14,5))
@@ -97,5 +101,5 @@ plt.savefig(output_path_complete, format='pdf')
 
 print "Plot saved --- script complete"
 
-
+# line thickness
 
