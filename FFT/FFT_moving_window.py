@@ -24,9 +24,6 @@ from osgeo.gdalconst import * # for reading in raster
 # start timing
 startTime = time.time()
 
-variance = []
-lag = []
-
 # start timing
 startTime = time.time()
 
@@ -107,7 +104,7 @@ stepsize = 1000
 
 #opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/'
 #opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/winsize_%i_stepsize_%i_random_hits_%i/' %(winsize, stepsize, nsample_input)
-opath = r'/geog/data/sirius/epsilon/ggwillc/FFT/tests/'
+opath = r'/geog/data/sirius/epsilon/ggwillc/FFT2/tests2/'
 
 if os.path.isdir(opath):
 	print "output_path exists"	
@@ -125,12 +122,12 @@ def FFT2_processing(image_array):
 def plot_FFT(FFT2_output, pos_ii, pos_jj, opath):
 	plt.clf()
 	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
-	magnitude[0,0] = 1
+	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
 	x, y = magnitude.shape
 	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
 	magnitude = np.roll(magnitude, y//2, 1)
 	maxfreq = 50
-	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]
+	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
 	fig = plt.figure()
 	plt.imshow(np.log(magnitude)),plt.colorbar()
 	time_stamp = strftime("%H.%M.%S")
@@ -159,7 +156,7 @@ nxwind, nywind = image_array_subsample_DATA.shape
 # IMPLEMENT LOOP FOR MOVING WINDOW TO WORK THROUGH
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-imgout = [np.zeros((1 + nxwind // stepsize, 1 + nywind // stepsize))]# for i in xrange(nvars)]
+#imgout = [np.zeros((1 + nxwind // stepsize, 1 + nywind // stepsize))]# for i in xrange(nvars)] #  filled by each step in the loop (the indiviudal elemets in the loop are affected by window size  - the output image is not)
 window_iteration=0
 for ii in range(0, nxwind, stepsize):
 	print "ii: %i" %(ii)
