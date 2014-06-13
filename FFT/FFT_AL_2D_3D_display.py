@@ -104,9 +104,9 @@ for file_name in glob("*.bin"):
 	print '~~~~~~~~~~~~~~'
 	#image_array_subsample_DATA = image_array[7119:7219, 7219:7319] ##  [i1:i2, j1:j2]
 	#image_array_subsample_DATA = image_array[3230:4230, 6117:7117] ## HELHEIM
-	image_array_subsample_DATA = image_array[5117:8665, 1209:6028] ## HELHEIM
-	print type(image_array_subsample_DATA)
-	print shape(image_array_subsample_DATA)
+	#image_array_subsample_DATA = image_array[5117:8665, 1209:6028] ## HELHEIM
+	#print type(image_array_subsample_DATA)
+	#print shape(image_array_subsample_DATA)
 
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	print 'CHECK OUTPUT DIRECTORY EXISTS'
@@ -147,6 +147,38 @@ for file_name in glob("*.bin"):
 		plt.savefig(output_filename)
 		#return FFT_plot
 		
+	def plot_FFT_2D_filter_size_half(FFT2_output, opath):
+		plt.clf()
+		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
+		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
+		x, y = magnitude.shape
+		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
+		magnitude = np.roll(magnitude, y//2, 1)
+		maxfreq = 50
+		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
+		fig = plt.figure()
+		plt.imshow(np.log(magnitude)),plt.colorbar()
+		time_stamp = strftime("%H.%M.%S")
+		output_filename = opath + '%s_2D_filter_50pc.png' %(snip_file_name)
+		plt.savefig(output_filename)
+		#return FFT_plot
+		
+	def plot_FFT_2D_filter_size_quarter(FFT2_output, opath):
+		plt.clf()
+		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
+		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
+		x, y = magnitude.shape
+		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
+		magnitude = np.roll(magnitude, y//2, 1)
+		maxfreq = 50
+		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
+		fig = plt.figure()
+		plt.imshow(np.log(magnitude)),plt.colorbar()
+		time_stamp = strftime("%H.%M.%S")
+		output_filename = opath + '%s_2D_filter_25pc.png' %(snip_file_name)
+		plt.savefig(output_filename)
+		#return FFT_plot
+		
 	def plot_FFT_3D(FFT2_output, opath):
 		plt.clf()
 		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
@@ -169,8 +201,12 @@ for file_name in glob("*.bin"):
 				
 
 	FFT_surface = image_array
-	plot_FFT_2D(FFT_surface, opath)
-	#plot_FFT_3D(FFT_surface, opath)
+	
+	#plot_FFT_2D(FFT_surface, opath)
+	plot_FFT_2D_filter_size_half(FFT_surface, opath)
+	##plot_FFT_2D_filter_size_quarter(FFT_surface, opath)
+	
+	##plot_FFT_3D(FFT_surface, opath)
 
 	print '~~~~~~~~~~~~~~'
 	print 'Clear variables'
