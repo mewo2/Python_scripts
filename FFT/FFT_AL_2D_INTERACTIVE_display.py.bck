@@ -116,11 +116,6 @@ print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 print 'CHECK OUTPUT DIRECTORY EXISTS'
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-#opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/'
-#opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/winsize_%i_stepsize_%i_random_hits_%i/' %(winsize, stepsize, nsample_input)
-#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT2/tests2/'
-
-#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/heavy_crevasse_ROI/FFT_surface_plots/'
 opath = r'/home/staff/ggwillc/Desktop/FFT_image_tests/'
 
 if os.path.isdir(opath):
@@ -130,16 +125,6 @@ else:
 	os.makedirs(opath)
 	print "...but it does now"
 
-numrows,numcols = FFT_surface.shape
-def format_coord(x,y):
-	col = int(x+0.5)
-	row = int(y+0.5)
-	if col>=0 and col<numcols and row>=0 and row<numrows:
-		z = FFT_surface[row,col]
-		return 'x=%1.4f, y=%1.4f, z=%1.4f'%(x,y,z)
-	else:
-		return  'x=%1.4f, y=%1.4f' %(x,y)
-		
 		
 def FFT2_processing(image_array):
 	print "Calculating FFT..."
@@ -147,6 +132,8 @@ def FFT2_processing(image_array):
 	return FFT2_output
 
 
+# Creates a function which alters the behaviour of the matplotlib function "format_coord"
+# see http://matplotlib.org/examples/api/image_zcoord.html
 def formatter(mat):
 	numrows,numcols = mat.shape
 	def format_coord(x,y):
@@ -159,21 +146,23 @@ def formatter(mat):
 			return  'x=%1.4f, y=%1.4f' %(x,y)
 	return format_coord
 
-	
-def plot_FFT_2D_interactive_z(FFT2_output, opath):
+# Plots the binary and uses the "formatter" function to enable interactive viewing of x,y and z values 
+# Option to alter frequenciy resolution by changing the "frq" value	
+def plot_FFT_2D_interactive_z(FFT2_output, opath, frq=50):
 	plt.clf()
 	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
 	x, y = magnitude.shape
 	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
 	magnitude = np.roll(magnitude, y//2, 1)
-	maxfreq = 50
+	maxfreq = frq
 	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
 	plt.imshow(np.log(magnitude)),plt.colorbar()
 	time_stamp = strftime("%H.%M.%S")
 	output_filename = opath + '%s_2D.png' %(snip_file_name)
 	plt.gca().format_coord = formatter(magnitude)
 	#plt.savefig(output_filename)
+	print "Frequency about to be displayed: %i" %frq
 	plt.show()		
 	#return FFT_plot	
 
@@ -219,7 +208,9 @@ def plot_FFT_3D(FFT2_output, opath):
 	
 
 #plot_FFT_2D(FFT_surface, opath)
-plot_FFT_2D_interactive_z(FFT_surface, opath)
+#plot_FFT_2D_interactive_z(FFT_surface, opath)
+plot_FFT_2D_interactive_z(FFT_surface, opath, 1000)
+#plot_FFT_2D_interactive_z(FFT_surface, opath)
 
 #plot_FFT_3D(FFT_surface, opath)
 

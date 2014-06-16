@@ -51,7 +51,8 @@ plt.clf()
 # IF using this, don't forget to tab everything below!
 #for file_name in glob("*.bin"):
 
-file_name = "heavy_crevasse_fft_output_tophat.bin"
+#file_name = "heavy_crevasse_fft_output_tophat.bin"
+file_name = "lesser_crevasse_2_fft_output_gauss_filter_25_percent.bin"
 
 snip_file_name = file_name.split('.')[0]
 		
@@ -145,6 +146,7 @@ def FFT2_processing(image_array):
 	FFT2_output = fft2(image_array)
 	return FFT2_output
 
+
 def formatter(mat):
 	numrows,numcols = mat.shape
 	def format_coord(x,y):
@@ -156,6 +158,7 @@ def formatter(mat):
 		else:
 			return  'x=%1.4f, y=%1.4f' %(x,y)
 	return format_coord
+
 	
 def plot_FFT_2D_interactive_z(FFT2_output, opath):
 	plt.clf()
@@ -169,10 +172,6 @@ def plot_FFT_2D_interactive_z(FFT2_output, opath):
 	plt.imshow(np.log(magnitude)),plt.colorbar()
 	time_stamp = strftime("%H.%M.%S")
 	output_filename = opath + '%s_2D.png' %(snip_file_name)
-	
-
-	
-	
 	plt.gca().format_coord = formatter(magnitude)
 	#plt.savefig(output_filename)
 	plt.show()		
@@ -192,7 +191,7 @@ def plot_FFT_2D(FFT2_output, opath):
 	time_stamp = strftime("%H.%M.%S")
 	output_filename = opath + '%s_2D.png' %(snip_file_name)
 	plt.gca().format_coord = format_coord
-	#plt.savefig(output_filename)
+	plt.savefig(output_filename)
 	plt.show()		
 	#return FFT_plot
 
@@ -222,23 +221,6 @@ def plot_FFT_3D(FFT2_output, opath):
 
 #plot_FFT_2D(FFT_surface, opath)
 plot_FFT_2D_interactive_z(FFT_surface, opath)
-
-'''
-#plt.clf()
-magnitude = np.absolute(FFT_surface) # gives magnitude component of FFT_output
-magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
-x, y = magnitude.shape
-magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
-magnitude = np.roll(magnitude, y//2, 1)
-maxfreq = 50
-magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
-plt.imshow(np.log(magnitude)),plt.colorbar()
-time_stamp = strftime("%H.%M.%S")
-output_filename = opath + '%s_2D.png' %(snip_file_name)
-plt.gca().format_coord = format_coord
-#plt.savefig(output_filename)
-plt.show()  	
-'''
 
 #plot_FFT_3D(FFT_surface, opath)
 

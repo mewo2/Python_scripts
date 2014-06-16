@@ -50,7 +50,9 @@ plt.clf()
 
 #cd /geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/low_pass/heavy_crevasse_ROI/
 
-for file_name in glob("*.bin"):
+for file_name in glob("*100_percent.bin"):
+#for file_name in glob("*50_percent.bin"):
+#for file_name in glob("*25_percent.bin"):
 	
 	snip_file_name = file_name.split('.')[0]
 		
@@ -115,7 +117,10 @@ for file_name in glob("*.bin"):
 	#opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/'
 	#opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/winsize_%i_stepsize_%i_random_hits_%i/' %(winsize, stepsize, nsample_input)
 	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT2/tests2/'
-	opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/heavy_crevasse_ROI/FFT_surface_plots/'
+	
+	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/heavy_crevasse_ROI/FFT_surface_plots/'
+	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_1_ROI/FFT_surface_plots/'
+	opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_2_ROI/FFT_surface_plots/'
 
 	if os.path.isdir(opath):
 		print "output_path exists"	
@@ -131,7 +136,7 @@ for file_name in glob("*.bin"):
 		return FFT2_output
 
 	
-	def plot_FFT_2D(FFT2_output, opath):
+	def plot_FFT_2D(FFT2_output, opath, snip_file_name):
 		plt.clf()
 		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
@@ -144,10 +149,12 @@ for file_name in glob("*.bin"):
 		plt.imshow(np.log(magnitude)),plt.colorbar()
 		time_stamp = strftime("%H.%M.%S")
 		output_filename = opath + '%s_2D.png' %(snip_file_name)
+		plot_title = "%s" %(snip_file_name)
+		plt.title(plot_title)
 		plt.savefig(output_filename)
 		#return FFT_plot
 		
-	def plot_FFT_2D_filter_size_half(FFT2_output, opath):
+	def plot_FFT_2D_filter_size_half(FFT2_output, opath, snip_file_name):
 		plt.clf()
 		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
@@ -160,10 +167,12 @@ for file_name in glob("*.bin"):
 		plt.imshow(np.log(magnitude)),plt.colorbar()
 		time_stamp = strftime("%H.%M.%S")
 		output_filename = opath + '%s_2D_filter_50pc.png' %(snip_file_name)
+		plot_title = "%s" %(snip_file_name)
+		plt.title(plot_title)
 		plt.savefig(output_filename)
 		#return FFT_plot
 		
-	def plot_FFT_2D_filter_size_quarter(FFT2_output, opath):
+	def plot_FFT_2D_filter_size_quarter(FFT2_output, opath, snip_file_name):
 		plt.clf()
 		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
@@ -176,6 +185,8 @@ for file_name in glob("*.bin"):
 		plt.imshow(np.log(magnitude)),plt.colorbar()
 		time_stamp = strftime("%H.%M.%S")
 		output_filename = opath + '%s_2D_filter_25pc.png' %(snip_file_name)
+		plot_title = "%s" %(snip_file_name)
+		plt.title(plot_title)
 		plt.savefig(output_filename)
 		#return FFT_plot
 		
@@ -202,9 +213,9 @@ for file_name in glob("*.bin"):
 
 	FFT_surface = image_array
 	
-	#plot_FFT_2D(FFT_surface, opath)
-	plot_FFT_2D_filter_size_half(FFT_surface, opath)
-	##plot_FFT_2D_filter_size_quarter(FFT_surface, opath)
+	plot_FFT_2D(FFT_surface, opath, snip_file_name)
+	#plot_FFT_2D_filter_size_half(FFT_surface, opath, snip_file_name)
+	#plot_FFT_2D_filter_size_quarter(FFT_surface, opath, snip_file_name)
 	
 	##plot_FFT_3D(FFT_surface, opath)
 

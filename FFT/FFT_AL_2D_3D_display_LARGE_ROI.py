@@ -120,7 +120,7 @@ for file_name in glob("*50_percent.bin"):
 	
 	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/heavy_crevasse_ROI/FFT_surface_plots/'
 	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_1_ROI/FFT_surface_plots/'
-	opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_2_ROI/FFT_surface_plots/'
+	opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_2_ROI/FFT_surface_plots_LARGE_FREQ_ROI/'
 
 	if os.path.isdir(opath):
 		print "output_path exists"	
@@ -136,56 +136,56 @@ for file_name in glob("*50_percent.bin"):
 		return FFT2_output
 
 	
-	def plot_FFT_2D(FFT2_output, opath, snip_file_name):
+	def plot_FFT_2D_LARGE_FRQ(FFT2_output, opath, snip_file_name, frq=500):
 		plt.clf()
 		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
 		x, y = magnitude.shape
 		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
 		magnitude = np.roll(magnitude, y//2, 1)
-		maxfreq = 50
+		maxfreq = frq
 		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
 		fig = plt.figure()
 		plt.imshow(np.log(magnitude)),plt.colorbar()
 		time_stamp = strftime("%H.%M.%S")
 		output_filename = opath + '%s_2D.png' %(snip_file_name)
-		plot_title = "%s" %(snip_file_name)
+		plot_title = "%s (%i frq.)" %(snip_file_name, frq)
 		plt.title(plot_title)
 		plt.savefig(output_filename)
 		#return FFT_plot
 		
-	def plot_FFT_2D_filter_size_half(FFT2_output, opath, snip_file_name):
+	def plot_FFT_2D_filter_size_half_LARGE_FRQ(FFT2_output, opath, snip_file_name, frq=500):
 		plt.clf()
 		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
 		x, y = magnitude.shape
 		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
 		magnitude = np.roll(magnitude, y//2, 1)
-		maxfreq = 50
+		maxfreq = frq
 		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
 		fig = plt.figure()
 		plt.imshow(np.log(magnitude)),plt.colorbar()
 		time_stamp = strftime("%H.%M.%S")
 		output_filename = opath + '%s_2D_filter_50pc.png' %(snip_file_name)
-		plot_title = "%s" %(snip_file_name)
+		plot_title = "%s (%i frq.)" %(snip_file_name, frq)
 		plt.title(plot_title)
 		plt.savefig(output_filename)
 		#return FFT_plot
 		
-	def plot_FFT_2D_filter_size_quarter(FFT2_output, opath, snip_file_name):
+	def plot_FFT_2D_filter_size_quarter_LARGE_FRQ(FFT2_output, opath, snip_file_name, frq=500):
 		plt.clf()
 		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
 		x, y = magnitude.shape
 		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
 		magnitude = np.roll(magnitude, y//2, 1)
-		maxfreq = 50
+		maxfreq = frq
 		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
 		fig = plt.figure()
 		plt.imshow(np.log(magnitude)),plt.colorbar()
 		time_stamp = strftime("%H.%M.%S")
 		output_filename = opath + '%s_2D_filter_25pc.png' %(snip_file_name)
-		plot_title = "%s" %(snip_file_name)
+		plot_title = "%s (%i frq.)" %(snip_file_name, frq)
 		plt.title(plot_title)
 		plt.savefig(output_filename)
 		#return FFT_plot
@@ -213,9 +213,9 @@ for file_name in glob("*50_percent.bin"):
 
 	FFT_surface = image_array
 	
-	#plot_FFT_2D(FFT_surface, opath, snip_file_name)
-	plot_FFT_2D_filter_size_half(FFT_surface, opath, snip_file_name)
-	#plot_FFT_2D_filter_size_quarter(FFT_surface, opath, snip_file_name)
+	#plot_FFT_2D_LARGE_FRQ(FFT_surface, opath, snip_file_name, 500)
+	plot_FFT_2D_filter_size_half_LARGE_FRQ(FFT_surface, opath, snip_file_name, 500)
+	#plot_FFT_2D_filter_size_quarter_LARGE_FRQ(FFT_surface, opath, snip_file_name, 500)
 	
 	##plot_FFT_3D(FFT_surface, opath)
 
