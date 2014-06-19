@@ -27,11 +27,17 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
+import sys
+sys.path.insert(0, '/home/staff/ggwillc/Desktop/Python_scripts/functions')
+import FFT_functions as FFT_functions
+
+#import home.staff.ggwillc.Desktop.Python_scripts.functions.FFT_functions
+
 # start timing
 startTime = time.time()
 
 # Register driver
-#gdal.AllRegister() #<-- useful only if reading in 
+#gdal.AllRegister() #<-- useful ont *ly if reading in 
 driver = gdal.GetDriverByName('ENVI') ## http://www.gdal.org/formats_list.html
 driver.Register()
 
@@ -42,7 +48,7 @@ driver.Register()
 ###################################
 
 # Clear any previous plots
-plt.clf()
+#plt.clf()
 
 ## Set file location
 #file_name = r"/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/low_pass/heavy_crevasse_ROI/heavy_crevasse_fft_output_tophat.bin"
@@ -50,8 +56,8 @@ plt.clf()
 
 #cd /geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/low_pass/heavy_crevasse_ROI/
 
-#for file_name in glob("*100_percent.bin"):
-for file_name in glob("*50_percent.bin"):
+for file_name in glob("*output*100_percent.bin"):
+#for file_name in glob("*50_percent.bin"):
 #for file_name in glob("*25_percent.bin"):
 	
 	snip_file_name = file_name.split('.')[0]
@@ -120,7 +126,9 @@ for file_name in glob("*50_percent.bin"):
 	
 	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/heavy_crevasse_ROI/FFT_surface_plots/'
 	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_1_ROI/FFT_surface_plots/'
-	opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_2_ROI/FFT_surface_plots/'
+	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_2_ROI/FFT_surface_plots/'
+	
+	opath = r'/home/staff/ggwillc/Desktop/FFT_image_tests/'
 
 	if os.path.isdir(opath):
 		print "output_path exists"	
@@ -128,93 +136,15 @@ for file_name in glob("*50_percent.bin"):
 		print "output_path DOESN'T exist...\n"
 		os.makedirs(opath)
 		print "...but it does now"
-
-
-	def FFT2_processing(image_array):
-		print "Calculating FFT..."
-		FFT2_output = fft2(image_array)
-		return FFT2_output
-
-	
-	def plot_FFT_2D(FFT2_output, opath, snip_file_name):
-		plt.clf()
-		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
-		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
-		x, y = magnitude.shape
-		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
-		magnitude = np.roll(magnitude, y//2, 1)
-		maxfreq = 50
-		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
-		fig = plt.figure()
-		plt.imshow(np.log(magnitude)),plt.colorbar()
-		time_stamp = strftime("%H.%M.%S")
-		output_filename = opath + '%s_2D.png' %(snip_file_name)
-		plot_title = "%s" %(snip_file_name)
-		plt.title(plot_title)
-		plt.savefig(output_filename)
-		#return FFT_plot
-		
-	def plot_FFT_2D_filter_size_half(FFT2_output, opath, snip_file_name):
-		plt.clf()
-		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
-		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
-		x, y = magnitude.shape
-		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
-		magnitude = np.roll(magnitude, y//2, 1)
-		maxfreq = 50
-		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
-		fig = plt.figure()
-		plt.imshow(np.log(magnitude)),plt.colorbar()
-		time_stamp = strftime("%H.%M.%S")
-		output_filename = opath + '%s_2D_filter_50pc.png' %(snip_file_name)
-		plot_title = "%s" %(snip_file_name)
-		plt.title(plot_title)
-		plt.savefig(output_filename)
-		#return FFT_plot
-		
-	def plot_FFT_2D_filter_size_quarter(FFT2_output, opath, snip_file_name):
-		plt.clf()
-		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
-		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
-		x, y = magnitude.shape
-		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
-		magnitude = np.roll(magnitude, y//2, 1)
-		maxfreq = 50
-		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
-		fig = plt.figure()
-		plt.imshow(np.log(magnitude)),plt.colorbar()
-		time_stamp = strftime("%H.%M.%S")
-		output_filename = opath + '%s_2D_filter_25pc.png' %(snip_file_name)
-		plot_title = "%s" %(snip_file_name)
-		plt.title(plot_title)
-		plt.savefig(output_filename)
-		#return FFT_plot
-		
-	def plot_FFT_3D(FFT2_output, opath):
-		plt.clf()
-		magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
-		magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
-		x, y = magnitude.shape
-		magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
-		magnitude = np.roll(magnitude, y//2, 1)
-		maxfreq = 50
-		magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
-
-		fig = plt.figure()
-		ax = fig.gca(projection='3d')
-		x, y = np.meshgrid(x, y)
-		z = magnitude
-		surface = ax.plot_surface(x,y,z,rstride=1,cstride=1,cmap=cm.coolwarm, linewidth=0, antialised=False)
-		fig.colorbar(surface, shrink=0.5, aspect=5)
-
-		output_filename = opath + '%s_3D.png' %(snip_file_name)
-		plt.savefig(output_filename)
-				
+			
 
 	FFT_surface = image_array
-	
+
+#	plot_FFT_2D_axis_frequency(FFT_surface, opath, snip_file_name)
+	FFT_functions.plot_FFT_2D_axis_wavelength(FFT_surface, opath, snip_file_name)
+
 	#plot_FFT_2D(FFT_surface, opath, snip_file_name)
-	plot_FFT_2D_filter_size_half(FFT_surface, opath, snip_file_name)
+	#plot_FFT_2D_filter_size_half(FFT_surface, opath, snip_file_name)
 	#plot_FFT_2D_filter_size_quarter(FFT_surface, opath, snip_file_name)
 	
 	##plot_FFT_3D(FFT_surface, opath)

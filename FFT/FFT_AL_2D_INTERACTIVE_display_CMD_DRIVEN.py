@@ -153,6 +153,7 @@ def FFT2_processing(image_array):
 
 # Creates a function which alters the behaviour of the matplotlib function "format_coord"
 # see http://matplotlib.org/examples/api/image_zcoord.html
+# ONLY WORKS FOR POSITIVE AXES - otherwise alter the format coord if statement 
 def formatter(mat):
 	numrows,numcols = mat.shape
 	def format_coord(x,y):
@@ -165,9 +166,25 @@ def formatter(mat):
 			return  'x=%1.4f, y=%1.4f' %(x,y)
 	return format_coord
 
+# Creates a function which alters the behaviour of the matplotlib function "format_coord"
+# see http://matplotlib.org/examples/api/image_zcoord.html
+# Deals with negative frequencies along the axis (otherwise use "formatter()")
+def formatter_FRQ(mat, frq):
+	numrows,numcols = mat.shape
+	neg_frq = frq - (frq*2)
+	def format_coord(x,y):
+		col = int(x+0.5)
+		row = int(y+0.5)
+		if col>=neg_frq and col<numcols and row>=neg_frq and row<numrows:
+			z = mat[row,col]
+			return 'x=%1.4f, y=%1.4f, z=%1.4f'%(x,y,z)
+		else:
+			return  'x=%1.4f, y=%1.4f' %(x,y)
+	return format_coord
+	
 # Plots the binary and uses the "formatter" function to enable interactive viewing of x,y and z values 
 # Option to alter frequenciy resolution by changing the "frq" value	
-def plot_FFT_2D_interactive_z(FFT2_output, opath, frq=50):
+def plot_FFT_2D_interactive_z_AXIS_FREQ(FFT2_output, opath, frq=50):
 	plt.clf()
 	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
@@ -176,14 +193,36 @@ def plot_FFT_2D_interactive_z(FFT2_output, opath, frq=50):
 	magnitude = np.roll(magnitude, y//2, 1)
 	maxfreq = frq
 	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
-	plt.imshow(np.log(magnitude)),plt.colorbar()
+	#plt.imshow(np.log(magnitude)),plt.colorbar()
+	plt.imshow(np.log(magnitude), extent=(-maxfreq, maxfreq, -maxfreq, maxfreq)),plt.colorbar() # gives x and y as distances from the origin
 	time_stamp = strftime("%H.%M.%S")
 	output_filename = opath + '%s_2D.png' %(snip_file_name)
-	plt.gca().format_coord = formatter(magnitude)
+	plt.gca().format_coord = formatter_FRQ(magnitude, frq)
 	#plt.savefig(output_filename)
 	print "Frequency about to be displayed: %i" %frq
+	plt.xlabel("Freq. distance from origin")
+	plt.ylabel("Freq. distance from origin")
 	plt.show()		
-	
+
+def plot_FFT_2D_interactive_z_AXIS_WAVELENGTHS(FFT2_output, opath, frq=50):
+	plt.clf()
+	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
+	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
+	x, y = magnitude.shape
+	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
+	magnitude = np.roll(magnitude, y//2, 1)
+	maxfreq = frq
+	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
+	#plt.imshow(np.log(magnitude)),plt.colorbar()
+	plt.imshow(np.log(magnitude), extent=(-maxfreq/x, maxfreq/x, -maxfreq/y, maxfreq/y)),plt.colorbar() # gives x and y as distances from the origin
+	time_stamp = strftime("%H.%M.%S")
+	output_filename = opath + '%s_2D.png' %(snip_file_name)
+	plt.gca().format_coord = formatter_FRQ(magnitude, frq)
+	#plt.savefig(output_filename)
+	print "Frequency about to be displayed: %i" %frq
+	plt.xlabel("Wavelength distance from origin (m)")
+	plt.ylabel("Wavelength distance from origin (m)")
+	plt.show()	
 
 def plot_FFT_2D(FFT2_output, opath):
 	plt.clf()
@@ -223,7 +262,8 @@ def plot_FFT_3D(FFT2_output, opath):
 	output_filename = opath + '%s_3D.png' %(snip_file_name)
 	plt.savefig(output_filename)
 	
-plot_FFT_2D_interactive_z(FFT_surface, opath, frq)
+plot_FFT_2D_interactive_z_AXIS_FREQ(FFT_surface, opath, frq)
+plot_FFT_2D_interactive_z_AXIS_WAVELENGTHS(FFT_surface, opath, frq)
 #plot_FFT_2D_interactive_z(FFT_surface, opath)
 
 #plot_FFT_3D(FFT_surface, opath)
