@@ -56,7 +56,9 @@ driver.Register()
 
 #cd /geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/low_pass/heavy_crevasse_ROI/
 
-for file_name in glob("*output*100_percent.bin"):
+for file_name in glob("*ELEV*output*butter*1*50_percent.bin"):
+#for file_name in glob("*MAX*output*butter*1*50_percent.bin"):
+
 #for file_name in glob("*50_percent.bin"):
 #for file_name in glob("*25_percent.bin"):
 	
@@ -139,14 +141,19 @@ for file_name in glob("*output*100_percent.bin"):
 
 	FFT_surface = image_array
 
-#	plot_FFT_2D_axis_frequency(FFT_surface, opath, snip_file_name)
-	FFT_functions.plot_FFT_2D_axis_wavelength(FFT_surface, opath, snip_file_name)
-
-	#plot_FFT_2D(FFT_surface, opath, snip_file_name)
-	#plot_FFT_2D_filter_size_half(FFT_surface, opath, snip_file_name)
-	#plot_FFT_2D_filter_size_quarter(FFT_surface, opath, snip_file_name)
+	print "brown noise!!!!!!!"
 	
-	##plot_FFT_3D(FFT_surface, opath)
+	#brown_noise = FFT_functions.brown_noise_surface(FFT_surface, 350)
+	#FFT_functions.plot_brown_noise(brown_noise, 350)
+	FFT_functions.plot_FFT_2D_axis_frequency(FFT_surface, opath, snip_file_name, 350)
+
+#	FFT_functions.plot_FFT_2D_axis_wavelength(FFT_surface, opath, snip_file_name)
+
+	## OLD
+	##FFT_functions.plot_FFT_2D(FFT_surface, opath, snip_file_name)
+	##FFT_functions.plot_FFT_2D_filter_size_half(FFT_surface, opath, snip_file_name)
+	##FFT_functions.plot_FFT_2D_filter_size_quarter(FFT_surface, opath, snip_file_name)
+	##FFT_functions.plot_FFT_3D(FFT_surface, opath)
 
 	print '~~~~~~~~~~~~~~'
 	print 'Clear variables'
