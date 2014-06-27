@@ -139,7 +139,7 @@ def plot_FFT_2D(FFT2_output, opath):
 	plt.show()	
 
 # Frequency scale corrected from centre	(0 at centre)
-def plot_FFT_2D_axis_frequency(FFT2_output, opath, snip_file_name, frq=50):
+def plot_FFT_2D_axis_frequency(FFT2_output, opath, snip_file_name, plot_title, frq=50):
 	plt.clf()
 	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
 	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
@@ -159,7 +159,8 @@ def plot_FFT_2D_axis_frequency(FFT2_output, opath, snip_file_name, frq=50):
 	time_stamp = strftime("%H.%M.%S")
 	output_filename = opath + '%s_2D_AXIS_FREQ.png' %(snip_file_name)
 	
-	plot_title = "%s" %(snip_file_name)
+	
+	#plot_title = "%s" %(snip_file_name)
 	plt.title(plot_title)
 	plt.xlabel("Freq. distance from origin")
 	plt.ylabel("Freq. distance from origin")
@@ -283,7 +284,7 @@ def brown_noise_surface(fft_surface, frq=50):
 	#for i in range(50): 
 		#for j in range(50):
 			
-			print "Creating brown noise ratio surface"
+			#print "Creating brown noise ratio surface"
 			
 			if (i>frq):
 				i_coord = i - frq
@@ -321,6 +322,28 @@ def plot_brown_noise(brown_noise, frq):
 	plt.title('Brown noise (rolled as FFT)')
 	plt.gca().format_coord = formatter_FRQ(brown_noise, frq)
 	plt.show()	
+
+
+def save_brown_noise(brown_noise, frq, opath, plot_title, snip_file_name):
+	
+	x, y = brown_noise.shape
+	fig = plt.figure()
+#	plt.imshow(np.log(brown_noise), extent=(-frq/x, frq/x, -frq/y, frq/y)),plt.colorbar()
+
+	plt.imshow(np.log(brown_noise), extent=(-frq, frq, -frq, frq)),plt.colorbar() # gives x and y as distances from the origin
+
+	plt.title('Brown noise (rolled as FFT)')
+	plt.gca().format_coord = formatter_FRQ(brown_noise, frq)
+	
+	output_filename = opath + '%s_divided_by_brown_noise.png' %(snip_file_name)
+
+	#plt.xticks(range(x/-frq, x/frq, 10))
+	
+	#plot_title = "%s" %(snip_file_name)
+	plt.xlabel("Freq. distance from origin")
+	plt.ylabel("Freq. distance from origin")
+	plt.title(plot_title)
+	plt.savefig(output_filename)
 
 #def noise_fft_subtraction():
 

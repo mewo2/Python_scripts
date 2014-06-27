@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
+
+## Remember - subplot(131) means subplot frame of 1 row, 3 col and image position 1 
+## In this instance 131, 132 and 133 == top left, top centre and top right
+## In this instance 134, 135 and 136 == left, centre and right
+## In this instance 137, 138 and 139 == bottom left, bottom centre and bottom right
+
+filter_percentage = 50
+pass_type = "high"
+for roi_number in range(1,6):
+	
+	img_1 = '/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/ROI_small/ROI_%i.png' %(roi_number)
+	img_2 = 'helheim_222a_sample_ELEVATION_ROI_%i_butterworth_1_%s_pass_fft_output_butterworth_1_filter_%i_percent_2D_AXIS_FREQ.png' %(roi_number, pass_type, filter_percentage)
+	img_3 = 'helheim_222a_sample_ELEVATION_ROI_%i_butterworth_1_%s_pass_fft_output_butterworth_1_filter_%i_percent_divided_by_brown_noise.png' %(roi_number, pass_type, filter_percentage)
+
+	rows = 1
+	cols = 3
+######
+
+	img=mpimg.imread(img_1)
+	plt.subplot(rows,cols,1)
+	plt.imshow(img)
+	plt.title("Elevation surface")
+	plt.axis('off')
+	plt.ylabel('ROI 1')
+	#odir = r'/home/staff/ggwillc/Desktop/IMAGE_test.pdf'
+	#plt.savefig(odir)
+	#plt.show()
+
+	img=mpimg.imread(img_2)
+	plt.subplot(rows,cols,2)
+	plt.title("FFT (low pass)")
+	plt.imshow(img)
+	plt.axis('off')
+	#odir = r'/home/staff/ggwillc/Desktop/IMAGE_test.pdf'
+	#plt.savefig(odir)
+	#plt.show()
+
+	img=mpimg.imread(img_3)
+	plt.subplot(rows,cols,3)
+	plt.title("FFT (brown)")
+	plt.imshow(img)
+	plt.axis('off')
+	odir = r'/home/staff/ggwillc/Desktop/ROI_%i_FFT__comparisons_%s_pass_filter_percentage_%i.pdf' %(roi_number, pass_type, filter_percentage)
+	plt.savefig(odir, dpi=400)
+	#plt.show()

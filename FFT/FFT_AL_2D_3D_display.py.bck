@@ -56,13 +56,33 @@ driver.Register()
 
 #cd /geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/low_pass/heavy_crevasse_ROI/
 
-#for file_name in glob("*ELEV*output*butter*1*50_percent.bin"):
-for file_name in glob("*MAX*output*butter*1*50_percent.bin"):
+for file_name in glob("*ELEV*output*butter*1*50_percent.bin"):
+#for file_name in glob("*MAX*output*butter*1*50_percent.bin"):
 
 #for file_name in glob("*50_percent.bin"):
 #for file_name in glob("*25_percent.bin"):
 	
 	snip_file_name = file_name.split('.')[0]
+
+	full_snip_1 = file_name.split('_sample')[0]
+	print full_snip_1
+		
+		
+	#	a1 = 'helheim_222a_sample_MAX_ROI_2_butterworth_1_high_pass_fft_output_butterworth_1_filter_50_percent_2D_AXIS_FREQ.png'
+	#	a2 = a1.split('_pass')[0]
+		#a3 = a2.split('MAX_')[1]
+
+	temp_snip_2 = file_name.split('_pass')[0]
+	
+	if "MAX" in temp_snip_2:
+		full_snip_2 = temp_snip_2.split('MAX_')[1]
+		print full_snip_2
+	elif "ELEVATION" in temp_snip_2:
+		full_snip_2 = temp_snip_2.split('ELEVATION_')[1]
+		print full_snip_2
+	else:
+		"Name snipping error!!"
+		os._exit(1)
 		
 	# open file
 	inds = gdal.Open(file_name, GA_ReadOnly)
@@ -143,9 +163,14 @@ for file_name in glob("*MAX*output*butter*1*50_percent.bin"):
 
 	print "brown noise!!!!!!!"
 	
-	#brown_noise = FFT_functions.brown_noise_surface(FFT_surface, 350)
+	plot_title = "%s %s" %(full_snip_1, full_snip_2)
+	print plot_title
+	
+	
+	brown_noise = FFT_functions.brown_noise_surface(FFT_surface, 300)
 	#FFT_functions.plot_brown_noise(brown_noise, 350)
-	FFT_functions.plot_FFT_2D_axis_frequency(FFT_surface, opath, snip_file_name, 350)
+	FFT_functions.save_brown_noise(brown_noise, 300, opath, snip_file_name, plot_title)
+	FFT_functions.plot_FFT_2D_axis_frequency(FFT_surface, opath, snip_file_name, plot_title, 300)
 
 #	FFT_functions.plot_FFT_2D_axis_wavelength(FFT_surface, opath, snip_file_name)
 
