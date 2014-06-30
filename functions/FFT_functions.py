@@ -169,10 +169,30 @@ def plot_FFT_2D_axis_frequency(FFT2_output, opath, snip_file_name, plot_title, f
 	print "Magnitude maximum: %f" %(magnitude.max())
 	#return magnitude
 	
+def magnitude_2D_RETURN(FFT2_output, frq=50):
+	plt.clf()
+	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
+	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
+	x, y = magnitude.shape
+	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
+	magnitude = np.roll(magnitude, y//2, 1)
+	maxfreq = frq
+	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
+	
+	input_x, input_y = x, y
+	
+	print "input image x: %i" %input_x
+	print "input image y: %i" %input_y
+	
+	print "Magnitude maximum: %f" %(magnitude.max())
+	return input_x, input_y, magnitude
+
+	
 # Wavelength units used instead of frequency units
 def plot_FFT_2D_axis_wavelength(FFT2_output, opath, snip_file_name):
 	plt.clf()
 	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
+	magnitude.shape
 	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
 	x, y = magnitude.shape
 	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
@@ -199,44 +219,7 @@ def plot_FFT_2D_axis_wavelength(FFT2_output, opath, snip_file_name):
 	plt.xlabel("Wavelength distance from origin (m)")
 	plt.ylabel("Wavelength distance from origin (m)")
 	plt.savefig(output_filename)
-
 	
-def plot_FFT_2D_filter_size_half(FFT2_output, opath, snip_file_name):
-	plt.clf()
-	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
-	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
-	x, y = magnitude.shape
-	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
-	magnitude = np.roll(magnitude, y//2, 1)
-	maxfreq = 50
-	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
-	fig = plt.figure()
-	plt.imshow(np.log(magnitude)),plt.colorbar()
-	time_stamp = strftime("%H.%M.%S")
-	output_filename = opath + '%s_2D_filter_50pc.png' %(snip_file_name)
-	plot_title = "%s" %(snip_file_name)
-	plt.title(plot_title)
-	plt.savefig(output_filename)
-	#return FFT_plot
-	
-	
-def plot_FFT_2D_filter_size_quarter(FFT2_output, opath, snip_file_name):
-	plt.clf()
-	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
-	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
-	x, y = magnitude.shape
-	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
-	magnitude = np.roll(magnitude, y//2, 1)
-	maxfreq = 50
-	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
-	fig = plt.figure()
-	plt.imshow(np.log(magnitude)),plt.colorbar()
-	time_stamp = strftime("%H.%M.%S")
-	output_filename = opath + '%s_2D_filter_25pc.png' %(snip_file_name)
-	plot_title = "%s" %(snip_file_name)
-	plt.title(plot_title)
-	plt.savefig(output_filename)
-	#return FFT_plot
 	
 ## REQUIRES NEW VERSION OF MATPLOTLIB		
 def plot_FFT_3D(FFT2_output, opath):
@@ -347,5 +330,45 @@ def save_brown_noise(brown_noise, frq, opath, plot_title, snip_file_name):
 
 #def noise_fft_subtraction():
 
+#########################
+#########################
+####  OBSOLETE STUFF ####
+#########################
+#########################
+
+def plot_FFT_2D_filter_size_half(FFT2_output, opath, snip_file_name):
+	plt.clf()
+	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
+	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
+	x, y = magnitude.shape
+	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
+	magnitude = np.roll(magnitude, y//2, 1)
+	maxfreq = 50
+	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
+	fig = plt.figure()
+	plt.imshow(np.log(magnitude)),plt.colorbar()
+	time_stamp = strftime("%H.%M.%S")
+	output_filename = opath + '%s_2D_filter_50pc.png' %(snip_file_name)
+	plot_title = "%s" %(snip_file_name)
+	plt.title(plot_title)
+	plt.savefig(output_filename)
+	#return FFT_plot
 	
 	
+def plot_FFT_2D_filter_size_quarter(FFT2_output, opath, snip_file_name):
+	plt.clf()
+	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
+	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
+	x, y = magnitude.shape
+	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
+	magnitude = np.roll(magnitude, y//2, 1)
+	maxfreq = 50
+	magnitude = magnitude[x//2 - maxfreq: x//2 + maxfreq, y//2 - maxfreq: y//2 + maxfreq]  # cuts down to within 50 frequencies
+	fig = plt.figure()
+	plt.imshow(np.log(magnitude)),plt.colorbar()
+	time_stamp = strftime("%H.%M.%S")
+	output_filename = opath + '%s_2D_filter_25pc.png' %(snip_file_name)
+	plot_title = "%s" %(snip_file_name)
+	plt.title(plot_title)
+	plt.savefig(output_filename)
+	#return FFT_plot

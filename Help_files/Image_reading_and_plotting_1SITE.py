@@ -43,6 +43,7 @@ for roi_number in range(1,6):
 	plt.title("FFT (brown)")
 	plt.imshow(img)
 	plt.axis('off')
-	odir = r'/home/staff/ggwillc/Desktop/ROI_%i_FFT__comparisons_%s_pass_filter_percentage_%i.pdf' %(roi_number, pass_type, filter_percentage)
+	odir = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/small_roi/low_pass/ROI_%i_FFT__comparisons_%s_pass_filter_percentage_%i.pdf' %(roi_number, pass_type, filter_percentage)
+	#odir = r'/home/staff/ggwillc/Desktop/ROI_%i_FFT__comparisons_%s_pass_filter_percentage_%i.pdf' %(roi_number, pass_type, filter_percentage)
 	plt.savefig(odir, dpi=400)
 	#plt.show()

@@ -168,8 +168,8 @@ plt.subplot(rows,cols,15)
 plt.imshow(img)
 plt.axis('off')
 odir = r'/home/staff/ggwillc/Desktop/IMAGE_test_filter_percentage_%i.pdf' %(filter_percentage)
-plt.savefig(odir, dpi=400)
+#plt.savefig(odir, dpi=400)
 #plt.savefig(odir)
-#plt.show()
+plt.show()
 
 #######

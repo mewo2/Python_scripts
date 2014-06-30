@@ -8,7 +8,7 @@ import numpy as np
 ## In this instance 137, 138 and 139 == bottom left, bottom centre and bottom right
 
 filter_percentage = 50
-pass_type = "low"
+pass_type = "high"
 for roi_number in range(1,6):
 	
 	img_1 = '/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/ROI_small/ROI_%i.png' %(roi_number)
