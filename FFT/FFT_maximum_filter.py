@@ -213,7 +213,7 @@ for file_name in glob("helheim_222a_sample_MAX_ROI_2_butterworth_1_low_pass_fft_
 				b[k] = rankdata(-row, method='dense') - 1
 			return b
 				
-		ordered_array = get_order_array(dem_maximum_filter)
+		#ordered_array = get_order_array(dem_maximum_filter)
 				
 		def get_order_array_2(a):
 			a_idx = np.argsort(a, axis=-1)[:, ::-1]
@@ -224,7 +224,7 @@ for file_name in glob("helheim_222a_sample_MAX_ROI_2_butterworth_1_low_pass_fft_
 			a_ranks = a_sorted_ranks[np.arange(a_sorted_ranks.shape[0])[:, None], np.argsort(a_idx, axis=1)]
 			return a_ranks
 		
-		#ordered_array = get_order_array_2(dem_maximum_filter)	
+		ordered_array = get_order_array_2(dem_maximum_filter)	
 		print ordered_array
 		
 		os._exit(1)

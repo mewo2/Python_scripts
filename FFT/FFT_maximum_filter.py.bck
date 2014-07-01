@@ -210,7 +210,7 @@ for file_name in glob("helheim_222a_sample_MAX_ROI_2_butterworth_1_low_pass_fft_
 		def get_order_array(a):
 			b = np.empty(a.shape, dtype=int)
 			for k, row in enumerate(a):
-				b[k] = rankdata(-row, 'dense') - 1
+				b[k] = rankdata(-row, method='dense') - 1
 			return b
 				
 		ordered_array = get_order_array(dem_maximum_filter)
