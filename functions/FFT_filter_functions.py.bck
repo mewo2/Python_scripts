@@ -137,25 +137,98 @@ def sorting_FFT_values(dem_maximum_filter, magnitude):
 # a (side length) runs from the origin (x,y : frq,frq) to the peak position (x,y : pos_x_coord,pos_y_coord)
 # b (side length) runs from the origin (x,y : frq,frq) to the top of the "north line" (x,y : frq,frq*2)
 		
-def FFT_max_value_bearings_NORTH_FRQ_LESS_180(pos_x_coord,pos_y_coord,frq):
+def FFT_max_value_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq):
+	print "pos_x_coord: %f" %pos_x_coord
+	print "pos_y_coord: %f" %pos_y_coord
 	frq_float = frq + 0.0
 	origin_x = frq_float
 	origin_y = frq_float
 	north_x = frq_float
 	north_y = frq_float*2 	
-	a = math.sqrt((abs(origin_x - pos_x_coord)**2)+(abs(origin_y - pos_y_coord)**2))
-	b = frq_float
-	c = math.sqrt((abs(north_x - pos_x_coord)**2)+(abs(north_y - pos_y_coord)**2))
-	cosC = (((a**2) + (b**2))//(c**2)) // (2*((a)*(b)))
-	#C_rad = math.acos(cosC)
-	#C_deg = math.degrees(C_rad)
-	C_deg = math.degrees(math.acos(cosC))
-	if(C_deg > 180.):
-		print "Fail inside bearing calculation - angle size too great"
-		os._exit(1)
-	else:
-		return C_deg
 	
+	print "frq_float: %f" %frq_float
+	print "origin_x: %f" %origin_x
+	print "origin_y: %f" %origin_y
+	print "north_x: %f" %north_x
+	print "north_y: %f" %north_y
+	
+	if(pos_y_coord == origin_y and pos_x_coord == origin_x):
+		C_deg = 0.0
+		return C_deg
+	elif((pos_y_coord < origin_y and pos_x_coord >= origin_x) or (pos_x_coord >= origin_x and pos_y_coord >= origin_y)):
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = math.sqrt(((north_x - pos_x_coord)**2)+((north_y - pos_y_coord)**2))
+		#cosC = (((a**2) + (b**2)) - (c**2)) // (2*((a)*(b)))
+		a2 = a**2
+		b2 = b**2
+		c2 = c**2
+		ab_2 = 2*(a*b)
+		
+		cosC_1 = (a2 + b2) - c2
+		cosC_2 = cosC_1/ab_2
+		
+		C_rad = math.acos(cosC_2)
+		C_deg = math.degrees(C_rad)
+		#C_deg = math.degrees(math.acos(cosC))
+		
+		'''
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "a2: %.50f" %a2
+		print "b2: %.50f" %b2
+		print "c2: %.50f" %c2
+		print "ab_2: %f" %ab_2
+		print "cosC_1: %f" %cosC_1
+		print "cosC_2: %f" %cosC_2
+		print "C_rad: %f" %C_rad
+		print "C_deg: %f" %C_deg
+		'''
+		
+		if(C_deg > 180.):
+			print "Fail inside bearing calculation - angle size too great...."
+			os._exit(1)
+		else:
+			return C_deg
+	elif((pos_y_coord < origin_y and pos_x_coord < origin_x) or (pos_y_coord >= origin_y and pos_x_coord < origin_x)):
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = math.sqrt(((north_x - pos_x_coord)**2)+((north_y - pos_y_coord)**2))
+		#cosC = (((a**2) + (b**2)) - (c**2)) // (2*((a)*(b)))
+		a2 = a**2
+		b2 = b**2
+		c2 = c**2
+		ab_2 = 2*(a*b)
+		
+		cosC_1 = (a2 + b2) - c2
+		cosC_2 = cosC_1/ab_2
+		
+		C_rad = math.acos(cosC_2)
+		C_deg = 360. - math.degrees(C_rad)
+		#C_deg = math.degrees(math.acos(cosC))
+		
+		'''
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "a2: %.50f" %a2
+		print "b2: %.50f" %b2
+		print "c2: %.50f" %c2
+		print "ab_2: %f" %ab_2
+		print "cosC_1: %f" %cosC_1
+		print "cosC_2: %f" %cosC_2
+		print "C_rad: %f" %C_rad
+		print "C_deg: %f" %C_deg
+		'''
+		
+		if(C_deg < 180.):
+			print "Fail inside bearing calculation - angle size too great...."
+			os._exit(1)
+		else:
+			return C_deg
+	
+			
 def FFT_max_filter_values(freq, post, input_x, input_y, magnitude, kernel=50):
 		
 		print "magnitude.shape"
@@ -223,14 +296,14 @@ def FFT_max_filter_values(freq, post, input_x, input_y, magnitude, kernel=50):
 		print " Co-ordinates " 
 		print "##############"
 		
-		sorting_FFT_values(dem_maximum_filter, magnitude)
+		#sorting_FFT_values(dem_maximum_filter, magnitude)
 		
 		accum_dist_frq = 0.0
 		accum_dist_px = 0.0
 
 		file_name = "FFT_test.txt"
 		f = open( file_name, 'w')
-		f.write("mag,dist.(frq),dist.(px),dist.(m)\n")
+		f.write("mag,dist.(frq),dist.(px),dist.(m),bearing (degreesN)\n")
 		
 		# peak of interest (position in maximum array)
 		for POI in range(len(max_coord_x)):
@@ -306,12 +379,18 @@ def FFT_max_filter_values(freq, post, input_x, input_y, magnitude, kernel=50):
 			#accum_dist_frq += xy_dist_frq
 			#accum_dist_px += xy_dist_px
 			
+			print "#################"
+			print "Calculate bearing"
+			print "#################"
+						
+			bearing = FFT_max_value_bearings_NORTH_FRQ(x_co,y_co,freq)
+			
 			instance_dist_frq = xy_dist_frq
 			instance_dist_px = xy_dist_px
 			
 			#mean_dist_frq = len(max_coord_x)/accum_dist_frq
 			#mean_dist_px = len(max_coord_x)/accum_dist_px
-			f.write("%f,%f,%f,%f" %(mag,instance_dist_frq,instance_dist_px,instance_dist_px*post))
+			f.write("%f,%f,%f,%f,%f" %(mag,instance_dist_frq,instance_dist_px,instance_dist_px*post,bearing))
 			f.write("\n")
 	
 		## Calc. max magnitude mean point distance
@@ -324,8 +403,8 @@ def FFT_max_filter_values(freq, post, input_x, input_y, magnitude, kernel=50):
 		print "%f (px)" %(mean_dist_px)
 		print "%f (m)" %(mean_dist_px*post)
 		'''
-		plt.imshow(np.log(dem_maximum_filter)), plt.colorbar()
-		plt.show()
+		#plt.imshow(np.log(dem_maximum_filter)), plt.colorbar()
+		#plt.show()
 		
 		#file_name = "FFT_test.txt"
 		#f = open( file_name, 'w')

@@ -41,7 +41,8 @@ startTime = time.time()
 driver = gdal.GetDriverByName('ENVI') ## http://www.gdal.org/formats_list.html
 driver.Register()
 
-for file_name in glob("helheim_222a_sample_MAX_ROI_2_butterworth_1_low_pass_fft_output_butterworth_1_filter_50_percent.bin"):
+#for file_name in glob("helheim_222a_sample_MAX_ROI_2_butterworth_1_low_pass_fft_output_butterworth_1_filter_50_percent.bin"):
+for file_name in glob("helheim_222a_sample_ELEVATION_ROI_2_tophat_high_pass_fft_output_tophat_filter_1_tenth_image.bin"):
 #for file_name in glob("*ELEV*output*butter*1*50_percent.bin"):
 #for file_name in glob("*MAX*output*butter*1*50_percent.bin"):
 
@@ -135,16 +136,18 @@ for file_name in glob("helheim_222a_sample_MAX_ROI_2_butterworth_1_low_pass_fft_
 	post = 0.5
 	
 	input_x, input_y, magnitude = FFT_functions.magnitude_2D_RETURN(FFT_surface, freq)
+	brown_noise = FFT_functions.brown_noise_surface(FFT_surface, 300)
 	
 	#print magnitude.shape
-	pos_x_coord = 400.
-	pos_y_coord = 400.
-	frq = 300
-	angle = FFT_filter_functions.FFT_max_value_bearings_NORTH_FRQ_LESS_180(pos_x_coord,pos_y_coord,frq)
-	print "Angle: %f degrees" %angle
+	#pos_x_coord = 500.
+	#pos_y_coord = 200.
+	#frq = 300
+	#angle = FFT_filter_functions.FFT_max_value_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq)
+	#print "Angle: %f degrees" %angle
 	 
 	#FFT_filter_functions.FFT_max_filter_values(freq, post, input_x, input_y, magnitude, 50)
-		
+	FFT_filter_functions.FFT_max_filter_values(freq, post, input_x, input_y, brown_noise, 50)
+	
 	#print 'Clear variables' 
 	band = None
 	image_array = None

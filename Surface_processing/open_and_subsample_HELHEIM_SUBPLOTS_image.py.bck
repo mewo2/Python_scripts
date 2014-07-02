@@ -35,14 +35,15 @@ driver.Register()
 # Clear any previous plots
 plt.clf()
 
-for roi_number in range(1,6):
-
+#for roi_number in range(1,6):
+for roi_number in range(1):
 	# Set file location
 	#file_name = r"/geog/data/sirius/epsilon/ggwillc/Maximum_surface_filtering/Helheim/222/HELHEIM_222a_dem_maximum_filter_kernel_239_20_percent_reduction_crevasse_surface_20_percent_reduction"
 	#file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/dem_median_filter_kernel_121_crevasse_surface"
 	#file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/222a_lidar/bin/222a.helheim_post_0.5m.bin"
 	#file_name = r"/geog/data/sirius/epsilon/ggwillc/Helheim/helheim_lidar_sorting/223-_lidar/bin/223-.helheim_post_0.5m.bin"
-	file_name = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/ROI_small/helheim_222a_sample_ELEVATION_ROI_%i.bin' %(roi_number)
+	#file_name = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/ROI_small/helheim_222a_sample_ELEVATION_ROI_%i.bin' %(roi_number)
+	file_name = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/small_roi/high_pass/helheim_222a_sample_ELEVATION_ROI_%i_butterworth_1_high_pass_fft_output_butterworth_1_filter_1_tenth_image.bin' %(roi_number)
 
 	# open file
 	inds = gdal.Open(file_name, GA_ReadOnly)
@@ -100,14 +101,15 @@ for roi_number in range(1,6):
 
 	#fig = plt.figure()
 	plt.imshow(image_array),plt.colorbar()
-	title = "ROI %i | cols: %i | rows: %i" %(roi_number, cols. rows)
+	title = "ROI %i | cols: %i | rows: %i" %(roi_number, cols, rows)
 	plt.title(title)
 	
 	plt.xlabel("Pixel distance (1 px = 0.5m)")
 	plt.ylabel("Pixel distance (1 px = 0.5m)")
 	
-	odir = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/ROI_small'
-	oput_file = "ROI_%i.png" %(roi_number)
+	#odir = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/ROI_small'
+	odir = r'~/Desktop/'
+	oput_file = "ROI_HIGH_PASS_%i.png" %(roi_number)
 	output = "%s/%s" %(odir, oput_file) 
 	#plt.show()
 	plt.savefig(output)
