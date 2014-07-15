@@ -159,11 +159,11 @@ nxwind, nywind = image_array_subsample_DATA.shape
 #imgout = [np.zeros((1 + nxwind // stepsize, 1 + nywind // stepsize))]# for i in xrange(nvars)] #  filled by each step in the loop (the indiviudal elemets in the loop are affected by window size  - the output image is not)
 window_iteration=0
 for ii in range(0, nxwind, stepsize):
-	#print "ii: %i" %(ii)
+	print "ii: %i" %(ii)
 	for jj in range(0, nywind, stepsize):
 		
-		print "ii: %i" %(ii)
-		print "jj: %i" %(jj)
+		#print "ii: %i" %(ii)
+		#print "jj: %i" %(jj)
 		
 		# CALCULATE MAX AND MIN RANGES OF ROWS AND COLS THAT CAN BE ACCESSED BY THE WINDOW
 		imin=max(0,ii-winsize/2) # gets the maximum of either 0 or ii-winsize/2...

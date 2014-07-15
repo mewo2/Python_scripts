@@ -403,8 +403,8 @@ def FFT_max_filter_values(freq, post, input_x, input_y, magnitude, kernel=50):
 		print "%f (px)" %(mean_dist_px)
 		print "%f (m)" %(mean_dist_px*post)
 		'''
-		#plt.imshow(np.log(dem_maximum_filter)), plt.colorbar()
-		#plt.show()
+		plt.imshow(np.log(dem_maximum_filter)), plt.colorbar()
+		plt.show()
 		
 		#file_name = "FFT_test.txt"
 		#f = open( file_name, 'w')

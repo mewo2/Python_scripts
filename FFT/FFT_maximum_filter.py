@@ -128,9 +128,8 @@ for file_name in glob("helheim_222a_sample_ELEVATION_ROI_2_tophat_high_pass_fft_
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-	FFT_surface = image_array
-
 	## Get rolled FFT image object
+	FFT_surface = image_array
 	plot_title = "Rolled FFT"
 	freq = 300
 	post = 0.5
@@ -146,7 +145,9 @@ for file_name in glob("helheim_222a_sample_ELEVATION_ROI_2_tophat_high_pass_fft_
 	#print "Angle: %f degrees" %angle
 	 
 	#FFT_filter_functions.FFT_max_filter_values(freq, post, input_x, input_y, magnitude, 50)
-	FFT_filter_functions.FFT_max_filter_values(freq, post, input_x, input_y, brown_noise, 50)
+	#FFT_filter_functions.FFT_max_filter_values(freq, post, input_x, input_y, brown_noise, 50)
+	
+	FFT_filter_functions.FFT_max_filter_values_SIMPLE(freq, post, input_x, input_y, brown_noise, 25)
 	
 	#print 'Clear variables' 
 	band = None

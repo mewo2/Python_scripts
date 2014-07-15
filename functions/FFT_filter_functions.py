@@ -414,3 +414,32 @@ def FFT_max_filter_values(freq, post, input_x, input_y, magnitude, kernel=50):
 		f.close()
 		
 		print "Output file written: %s" %file_name
+
+def FFT_max_filter_values_SIMPLE(freq, post, input_x, input_y, magnitude, kernel=50):
+		
+		print "magnitude.shape"
+		print magnitude.shape
+		print "magnitude.dtype"
+		print magnitude.dtype
+		print "magnitude.max"
+		print magnitude.max()
+		print "magnitude.min"
+		print magnitude.min()
+		
+		
+		print "input_x: %f" %input_x
+		print "input_y: %f" %input_y
+
+		#os._exit(1)
+		
+		print '~~~~~~~~~~~~~~'
+		print 'Maximum filter'
+		print '~~~~~~~~~~~~~~'
+
+		print "Calculating...."
+		method = "_maximum"
+		dem_maximum_filter = ndimage.filters.maximum_filter(magnitude,size=(kernel,kernel),mode='reflect')
+		filter_max = dem_maximum_filter.max()
+		
+		plt.imshow(np.log(dem_maximum_filter)), plt.colorbar()
+		plt.show()
