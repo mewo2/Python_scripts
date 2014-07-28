@@ -1,7 +1,3 @@
-'''
-FFT functions
-'''
-
 from __future__ import division
 
 import sys
@@ -166,6 +162,7 @@ def plot_FFT_2D_axis_frequency(FFT2_output, opath, snip_file_name, plot_title, f
 	plt.ylabel("Freq. distance from origin")
 			
 	plt.savefig(output_filename)
+	#plt.show()
 	print "Magnitude maximum: %f" %(magnitude.max())
 	#return magnitude
 	
@@ -241,6 +238,7 @@ def plot_FFT_3D(FFT2_output, opath):
 
 	output_filename = opath + '%s_3D.png' %(snip_file_name)
 	plt.savefig(output_filename)
+	plt.show()
 	
 ########
 
@@ -295,6 +293,8 @@ def brown_noise_surface(fft_surface, frq=50):
 			#brown_noise[i,j]/(i_coord**2 + j_coord**2)
 	
 	print "Brown noise maximum: %f" %(brown_noise.max())
+	print "Brown noise maximum (log): %f" %(np.log(brown_noise.max()))
+	
 	return brown_noise
 
 def plot_brown_noise(brown_noise, frq):

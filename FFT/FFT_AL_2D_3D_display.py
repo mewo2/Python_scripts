@@ -27,8 +27,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
+#http://stackoverflow.com/questions/4383571/importing-files-from-different-folder-in-python
 import sys
-sys.path.insert(0, '/home/staff/ggwillc/Desktop/Python_scripts/functions')
+#sys.path.insert(0, '/home/staff/ggwillc/Desktop/Python_scripts/functions')
+sys.path.insert(0, 'C:/Users/ggwillc/Desktop/Python_scripts-master/functions')
 import FFT_functions as FFT_functions
 
 #import home.staff.ggwillc.Desktop.Python_scripts.functions.FFT_functions
@@ -153,7 +155,8 @@ for file_name in glob("helheim_222a_sample_ELEVATION_ROI_2_tophat_high_pass_fft_
 	#opath = r'/geog/data/sirius/epsilon/ggwillc/FFT_2D/Helheim/AL_FFT_outputs/high_pass/lesser_crevasse_2_ROI/FFT_surface_plots/'
 	
 	#opath = r'/home/staff/ggwillc/Desktop/FFT_image_tests/'
-	opath = r'/home/staff/ggwillc/Desktop/'
+	#opath = r'/home/staff/ggwillc/Desktop/'
+	opath = r'C:/Users/ggwillc/Desktop/FFT/FFT_OUTPUTS/'
 	
 	if os.path.isdir(opath):
 		print "output_path exists"	
@@ -170,9 +173,9 @@ for file_name in glob("helheim_222a_sample_ELEVATION_ROI_2_tophat_high_pass_fft_
 	print plot_title
 	
 	
-	brown_noise = FFT_functions.brown_noise_surface(FFT_surface, 300)
+	#brown_noise = FFT_functions.brown_noise_surface(FFT_surface, 300)
 	##FFT_functions.plot_brown_noise(brown_noise, 350)
-	FFT_functions.save_brown_noise(brown_noise, 300, opath, plot_title, snip_file_name)
+	#FFT_functions.save_brown_noise(brown_noise, 300, opath, plot_title, snip_file_name)
 	FFT_functions.plot_FFT_2D_axis_frequency(FFT_surface, opath, snip_file_name, plot_title, 300)
 
 #	FFT_functions.plot_FFT_2D_axis_wavelength(FFT_surface, opath, snip_file_name)
@@ -181,7 +184,7 @@ for file_name in glob("helheim_222a_sample_ELEVATION_ROI_2_tophat_high_pass_fft_
 	##FFT_functions.plot_FFT_2D(FFT_surface, opath, snip_file_name)
 	##FFT_functions.plot_FFT_2D_filter_size_half(FFT_surface, opath, snip_file_name)
 	##FFT_functions.plot_FFT_2D_filter_size_quarter(FFT_surface, opath, snip_file_name)
-	##FFT_functions.plot_FFT_3D(FFT_surface, opath)
+	#FFT_functions.plot_FFT_3D(FFT_surface, opath)
 
 	print '~~~~~~~~~~~~~~'
 	print 'Clear variables'
