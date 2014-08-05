@@ -209,7 +209,7 @@ def FFT_max_value_POINT_bearings_NORTH_FRQ_DEFUNCT(pos_x_coord,pos_y_coord,frq):
 		else:
 			return C_deg
 			
-def FFT_max_value_POINT_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq,corner):
+def FFT_max_value_POINT_bearings_NORTH_FRQ_HARDWIRED(pos_x_coord,pos_y_coord,frq,corner):
 	#corner = 1 # bottom right hand corner
 	#corner = 2 # bottom left hand corner
 	#corner = 3 # top right hand corner
@@ -274,7 +274,7 @@ def FFT_max_value_POINT_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq,corner):
 		
 		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
 		b = frq_float
-		c = frq_float - pos_x_coord 
+		c = origin_x - pos_x_coord 
 		sin_x = c/a
 		
 		print "a: %f" %a
@@ -341,7 +341,123 @@ def FFT_max_value_POINT_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq,corner):
 		print "Side corrected x_deg: %f" %x_deg
 				
 	return x_deg
+
+def FFT_max_value_POINT_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq,corner,origin_x,origin_y):
+	#corner = 1 # bottom right hand corner
+	#corner = 2 # bottom left hand corner
+	#corner = 3 # top right hand corner
+	#corner = 4 # top left hand corner
 	
+	frq_float = frq + 0.0
+	north_x = frq_float
+	north_y = 0.0 	
+		
+	print "pos_x_coord: %f" %pos_x_coord
+	print "pos_y_coord: %f" %pos_y_coord
+	print "frq_float: %f" %frq_float
+	print "origin_x: %f" %origin_x
+	print "origin_y: %f" %origin_y
+	print "north_x: %f" %north_x
+	print "north_y: %f" %north_y
+		
+	if(pos_y_coord == origin_y and pos_x_coord == origin_x):
+		C_deg = 0.0
+		return C_deg
+	# This covers the left hand side of an image (i.e. angles >180degN)
+	elif(corner == 1):
+		
+		print "~~~~~~~~~~~~~~"
+		print "using > 180degN function...."
+		print "~~~~~~~~~~~~~~"
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = frq_float - pos_x_coord 
+		sin_x = c/a
+		
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "sin_x: %f" %(sin_x)
+		
+		x_rad = np.arcsin(sin_x)
+		x_deg = math.degrees(x_rad)
+		
+		print "Printing x_deg...."
+		print x_deg
+		
+		x_deg = 360.0 - x_deg
+		print "Side corrected x_deg: %f" %x_deg
+		
+	# this is for where the origin is in the topleft hand corner
+	elif(corner == 3):
+		print "~~~~~~~~~~~~~~"
+		print "using > 180degN function for bottom left hand corner image"
+		print "~~~~~~~~~~~~~~"
+		
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = origin_x - pos_x_coord 
+		sin_x = c/a
+		
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "sin_x: %f" %(sin_x)
+		
+		x_rad = np.arcsin(sin_x)
+		x_deg = math.degrees(x_rad)
+		
+		print "Printing x_deg...."
+		print x_deg
+		
+		x_deg = 180.0 + x_deg
+		print "Side corrected x_deg: %f" %x_deg
+		
+	# This covers the right hand side of an image (i.e. angles <180degN) <<<< NOT WORKING (probably related to inputs in the script that calls it)
+	elif(corner == 2):
+			
+		print "~~~~~~~~~~~~~~"
+		print "using < 180degN function...."
+		print "~~~~~~~~~~~~~~"
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = pos_x_coord - frq_float
+		sin_x = c/a
+		
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "sin_x: %f" %(sin_x)
+		
+		x_rad = np.arcsin(sin_x)
+		x_deg = math.degrees(x_rad)
+		
+		print "Printing x_deg...."
+		print x_deg
+	
+	elif(corner == 4):
+			
+		print "~~~~~~~~~~~~~~"
+		print "using < 180degN function...."
+		print "~~~~~~~~~~~~~~"
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = pos_x_coord - frq_float
+		sin_x = c/a
+		
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "sin_x: %f" %(sin_x)
+		
+		x_rad = np.arcsin(sin_x)
+		x_deg = math.degrees(x_rad)
+		
+		x_deg = 90. + x_deg
+		print "Side corrected x_deg: %f" %x_deg
+				
+	return x_deg
+
 ## FFT_max_filter_values is an older function that maximum filtered the surface, got the xy coords of the maximum pixels and then calculated their bearings (degN) relative to the centre of the image (assuming "up" is north) - outputs were then written to a .txt file - this has been reworked now so is OLD
 def FFT_max_filter_values_OLD(freq, post, input_x, input_y, magnitude, kernel=50):
 		
