@@ -87,10 +87,23 @@ for file_name in glob(file):
 		print "...but it does now"		
 	
 	######## MOVING WINDOW STARTS HERE
+	#nxwind = freq
+	#nywind = freq
+	#nxwind = 600 # 2x freq
+	#nywind = 600 # 2x freq
+	#kernel_size = 433#23 ## FFT is faster for a window to the power of 2 OR a prime number
+	#stepsize = 500
+	#freq = 300
+	#post = 0.5
 	
-	kernel_size = 433#23 ## FFT is faster for a window to the power of 2 OR a prime number
-	stepsize = 1000
-	freq = 300
+	nxwind = 301 # 2x freq
+	nywind = 301 # 2x freq
+	kernel_size = 301#23 ## FFT is faster for a window to the power of 2 OR a prime number
+	stepsize = 1
+	freq = int(nxwind/2)
+	print "##############"
+	print "freq: %i" %freq
+	print "##############"
 	post = 0.5
 	
 	###########################
@@ -103,21 +116,19 @@ for file_name in glob(file):
 		print "kernel is even - it needs to be odd and at least of a value of 3"
 		os._exit(1)
 
-	#nxwind = freq
-	#nywind = freq
-	nxwind = 600 # 2x freq
-	nywind = 600 # 2x freq
-	
 	number_of_output_variables = 2 # spacing and orientation
 	imgout = [np.zeros((1 + nxwind // stepsize, 1 + nywind // stepsize)) for i in xrange(number_of_output_variables)]
 	window_border_indent = int((kernel_size - 1)/2 )
 	window_border_indent_end_X = int(nxwind - window_border_indent)
 	window_border_indent_end_Y = int(nywind - window_border_indent) 
+	print "##############"
+	print "window_border_indent: %f"  %window_border_indent
+	print "window_border_indent_end_X: %f"  %window_border_indent_end_X
+	print "window_border_indent_end_Y: %f"  %window_border_indent_end_Y
 	
 	window_iteration = 0
 		
 	for ii in range(window_border_indent, window_border_indent_end_X, stepsize):
-		
 		for jj in range(window_border_indent, window_border_indent_end_Y, stepsize):
 			
 			window_iteration+=1
@@ -125,11 +136,16 @@ for file_name in glob(file):
 			#print "[%i,%i]" %(ii,jj)
 			
 			# CALCULATE MAX AND MIN RANGES OF ROWS AND COLS THAT CAN BE ACCESSED BY THE WINDOW
-			imin=max(0,ii-((kernel_size-1)/2)) # gets the maximum of either 0 or i-kernel_size/2...
-			imax=min(nxwind-1,ii+((kernel_size-1)/2))+1
-			jmin=max(0,jj-((kernel_size-1)/2))
-			jmax=min(nywind-1,jj+((kernel_size-1)/2))+1
+			#imin=max(0,ii-((kernel_size-1)/2)) # gets the maximum of either 0 or i-kernel_size/2...
+			#imax=min(nxwind-1,ii+((kernel_size-1)/2))+1
+			#jmin=max(0,jj-((kernel_size-1)/2))
+			#jmax=min(nywind-1,jj+((kernel_size-1)/2))+1
 			
+			imin=max(0,ii-window_border_indent) # gets the maximum of either 0 or i-kernel_size/2...
+			imax=min(nxwind-1,ii+window_border_indent)+1
+			jmin=max(0,jj-window_border_indent)
+			jmax=min(nywind-1,jj+window_border_indent)+1
+						
 			print imin, imax, jmin, jmax
 		
 			calc_moving_window_size_x = imax - imin 
@@ -177,22 +193,24 @@ for file_name in glob(file):
 			test_for_quadrant_max = 1
 			if(test_for_quadrant_max == 1):
 				Q1_title = "Q1 (top left)"
-				Q1 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),0,300,0,300,opath,Q1_title )
+				#Q1 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),0,300,0,300,opath,Q1_title )
+				Q1 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),0,nxwind/2,0,nxwind/2,opath,Q1_title )
 				GIBBS_TRIMMED_Q1 = Q1[0:mod_length,0:mod_length].copy()
 				ny, nx = Q1.shape
 				filtered_quart_GIBBS_TRIMMED_Q1 = FFT_filter_functions.FFT_gaussian_filter_values_SIMPLE(post, nx, ny, GIBBS_TRIMMED_Q1, opath, 25)
 				x_axis_limit_Q1 = len(filtered_quart_GIBBS_TRIMMED_Q1) - cutoff_zone
 				y_axis_limit_Q1 = len(filtered_quart_GIBBS_TRIMMED_Q1) - cutoff_zone 
 				gibbs_trimmed_and_cutoff_area_max_Q1 = filtered_quart_GIBBS_TRIMMED_Q1[0:y_axis_limit_Q1,0:x_axis_limit_Q1].max()
-		
+			
 				Q3_title = "Q3 (bottom left)"
-				Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),300,600,0,300,opath,Q3_title)
+				#Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),300,600,0,300,opath,Q3_title)
+				Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),nywind/2,nywind,nxwind/2,nxwind,opath,Q3_title)
 				GIBBS_TRIMMED_Q3 = Q3[gibbs_allowance:freq,gibbs_allowance:freq].copy()
 				ny, nx = Q3.shape
 				filtered_quart_GIBBS_TRIMMED_Q3 = FFT_filter_functions.FFT_gaussian_filter_values_SIMPLE(post, nx, ny, GIBBS_TRIMMED_Q3, opath, 25)
 				x_axis_limit_Q3 = len(filtered_quart_GIBBS_TRIMMED_Q3) - cutoff_zone
 				gibbs_trimmed_and_cutoff_area_max_Q3 = filtered_quart_GIBBS_TRIMMED_Q3[cutoff_zone:len(filtered_quart_GIBBS_TRIMMED_Q3),0:x_axis_limit_Q3].max()
-		
+			
 				# corner = 3 # 1 = top left, 3 = bottom left
 				if(gibbs_trimmed_and_cutoff_area_max_Q1 > gibbs_trimmed_and_cutoff_area_max_Q3):
 					print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -208,91 +226,78 @@ for file_name in glob(file):
 					print "Both quarters have same maximum value"
 					print "Program now closing"
 					os._exit(1)
-			
 				
-			# Define mesh coordinate arrays
-			if(corner == 1):
-				title = "Q1 (top left)"
-			#	Q1 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),0,300,0,300,opath,title )
-				ny, nx = Q1.shape
-			elif(corner == 3):
-				title = "Q3 (bottom left)"
-			#	Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),300,600,0,300,opath,title)
-				ny, nx = Q3.shape
-			
-			x = np.linspace(0,nx-1,nx)
-			y = np.linspace(0,ny-1,ny)
-			
-			
-			if(corner == 1):
-				GIBBS_TRIMMED = Q1[0:mod_length,0:mod_length].copy()
-				filtered_quart_GIBBS_TRIMMED = FFT_filter_functions.FFT_gaussian_filter_values_SIMPLE(post, nx, ny, GIBBS_TRIMMED, opath, 25)
-				
-				x_axis_limit = len(filtered_quart_GIBBS_TRIMMED) - cutoff_zone
-				y_axis_limit = len(filtered_quart_GIBBS_TRIMMED) - cutoff_zone 
-				print "limits - x: %f y: %f" %(x_axis_limit, y_axis_limit)
-				
-				gibbs_trimmed_and_cutoff_area_max = filtered_quart_GIBBS_TRIMMED[0:y_axis_limit,0:x_axis_limit].max()
-			
-				for i in range(len(filtered_quart_GIBBS_TRIMMED)):
-					for j in range(len(filtered_quart_GIBBS_TRIMMED[i])):
-				
-						if(i > (0 + cutoff_zone)) and (j < (300 - cutoff_zone)):
-							if(filtered_quart_GIBBS_TRIMMED[i,j] == filtered_quart_GIBBS_TRIMMED.max()):
-								print filtered_quart_GIBBS_TRIMMED[i,j]
-								print "y = %.2f" %y[i]
-								filtered_quart_GIBBS_TRIMMED_max_value_y = y[i]
-								print "x = %.2f" %x[j]
-								filtered_quart_GIBBS_TRIMMED_max_value_x = x[j]
-								max_position_orientation = FFT_filter_functions.FFT_max_value_POINT_bearings_NORTH_FRQ(filtered_quart_GIBBS_TRIMMED_max_value_y, filtered_quart_GIBBS_TRIMMED_max_value_x, freq, 1)
-								#dist_frq, dist_px = FFT_filter_functions.peak_distance(filtered_quart_GIBBS_TRIMMED_max_value_x,filtered_quart_GIBBS_TRIMMED_max_value_y,input_x,input_y,freq,corner)
-								dist_frq, dist_px = FFT_filter_functions.peak_distance(filtered_quart_GIBBS_TRIMMED_max_value_x,filtered_quart_GIBBS_TRIMMED_max_value_y,calc_moving_window_size_x,calc_moving_window_size_y,freq,corner)
-								#calc_moving_window_size_x calc_moving_window_size_y
-								
-								print "max position distance (frq): %f" %dist_frq
-								print "max position distance (px): %f" %dist_px
-								print "max position distance (m): %f" %(dist_px*post)
-								print "max position orientation: %f degreesN" %(max_position_orientation)			
-								print "max position orientation (rotated -90degN): %f degreesN" %(max_position_orientation - 90.)	
-						else:
-							#print "Avoiding central cutoff zone...."
-							#print "[%f.0,%f.0]" %(j,i)
-							pass
-				
-				plt.imshow(np.log(filtered_quart_GIBBS_TRIMMED)), plt.colorbar()
-				plt.gca().format_coord = FFT_functions.formatter_FRQ(filtered_quart_GIBBS_TRIMMED, freq)
-				plt.show()		
-				
-							
-			elif(corner == 3):
-				print "Inside Q3"
-				GIBBS_TRIMMED = Q3[gibbs_allowance:freq,gibbs_allowance:freq].copy()
-				filtered_quart_GIBBS_TRIMMED_Q3 = FFT_filter_functions.FFT_gaussian_filter_values_SIMPLE(post, nx, ny, GIBBS_TRIMMED, opath, 25)
-				
-				x_axis_limit = len(filtered_quart_GIBBS_TRIMMED_Q3) - cutoff_zone
-				gibbs_trimmed_and_cutoff_area_max = filtered_quart_GIBBS_TRIMMED_Q3[cutoff_zone:len(filtered_quart_GIBBS_TRIMMED_Q3),0:x_axis_limit].max()
-				
-				for i in range(len(filtered_quart_GIBBS_TRIMMED_Q3)):
-					for j in range(len(filtered_quart_GIBBS_TRIMMED_Q3[i])):
+				# Define mesh coordinate arrays
+				if(corner == 1):
+					title = "Q1 (top left)"
+				#	Q1 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),0,300,0,300,opath,title )
+					ny, nx = Q1.shape
+				elif(corner == 3):
+					title = "Q3 (bottom left)"
+				#	Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),300,600,0,300,opath,title)
+					ny, nx = Q3.shape
 					
-						if(i < (cutoff_zone)) and (j > (300 - cutoff_zone)):
-							#print "[%i,%i]" %(i,j)
-							pass
-						else:
-							if(filtered_quart_GIBBS_TRIMMED_Q3[i,j] == gibbs_trimmed_and_cutoff_area_max):
-								print filtered_quart_GIBBS_TRIMMED_Q3[i,j]
-								print "y = %.2f" %y[i]
-								filtered_quart_GIBBS_TRIMMED_Q3_max_value_y = y[i]
-								print "x = %.2f" %x[j]
-								filtered_quart_GIBBS_TRIMMED_Q3_max_value_x = x[j]
-								max_position_orientation = FFT_filter_functions.FFT_max_value_POINT_bearings_NORTH_FRQ(filtered_quart_GIBBS_TRIMMED_Q3_max_value_y, filtered_quart_GIBBS_TRIMMED_Q3_max_value_x, freq, corner)
-								print "max_position_orientation: %f degreesN" %(max_position_orientation)			
-							
-							
-				plt.imshow(np.log(filtered_quart_GIBBS_TRIMMED_Q3)), plt.colorbar()
-				plt.gca().format_coord = FFT_functions.formatter_FRQ(filtered_quart_GIBBS_TRIMMED_Q3, freq)
-				plt.show()		
-				
-		os._exit(1)
-			
-		
+				x = np.linspace(0,nx-1,nx)
+				y = np.linspace(0,ny-1,ny)
+					
+				if(corner == 1):
+					
+					for i in range(len(filtered_quart_GIBBS_TRIMMED_Q1)):
+						for j in range(len(filtered_quart_GIBBS_TRIMMED_Q1[i])):
+					
+							if(i > (0 + cutoff_zone)) and (j < (300 - cutoff_zone)):
+								if(filtered_quart_GIBBS_TRIMMED_Q1[i,j] == filtered_quart_GIBBS_TRIMMED_Q1.max()):
+									print filtered_quart_GIBBS_TRIMMED_Q1[i,j]
+									print "y = %.2f" %y[i]
+									filtered_quart_GIBBS_TRIMMED_max_value_y = y[i]
+									print "x = %.2f" %x[j]
+									filtered_quart_GIBBS_TRIMMED_max_value_x = x[j]
+									max_position_orientation = FFT_filter_functions.FFT_max_value_POINT_bearings_NORTH_FRQ(filtered_quart_GIBBS_TRIMMED_max_value_y, filtered_quart_GIBBS_TRIMMED_max_value_x, freq, 1)
+									dist_frq = FFT_filter_functions.peak_distance(filtered_quart_GIBBS_TRIMMED_max_value_x,filtered_quart_GIBBS_TRIMMED_max_value_y,calc_moving_window_size_x,calc_moving_window_size_y,freq,corner)
+									print "max position distance (frq): %f" %dist_frq
+									#print "max position distance (px): %f" %dist_px
+									#print "max position distance (m): %f" %(dist_px*post)
+									print "max position orientation: %f degreesN" %(max_position_orientation)			
+									print "max position orientation (rotated -90degN): %f degreesN" %(max_position_orientation - 90.)	
+							else:
+								#print "Avoiding central cutoff zone...."
+								#print "[%f.0,%f.0]" %(j,i)
+								pass
+					
+					plt.imshow(np.log(filtered_quart_GIBBS_TRIMMED_Q1)), plt.colorbar()
+					plt.gca().format_coord = FFT_functions.formatter_FRQ(filtered_quart_GIBBS_TRIMMED_Q1, freq)
+					#plt.show()		
+					
+								
+				elif(corner == 3):
+					
+					for i in range(len(filtered_quart_GIBBS_TRIMMED_Q3)):
+						for j in range(len(filtered_quart_GIBBS_TRIMMED_Q3[i])):
+						
+							if(i < (cutoff_zone)) and (j > (300 - cutoff_zone)):
+								#print "[%i,%i]" %(i,j)
+								pass
+							else:
+								if(filtered_quart_GIBBS_TRIMMED_Q3[i,j] == filtered_quart_GIBBS_TRIMMED_Q3.max()):
+									print filtered_quart_GIBBS_TRIMMED_Q3[i,j]
+									print "y = %.2f" %y[i]
+									filtered_quart_GIBBS_TRIMMED_Q3_max_value_y = y[i]
+									print "x = %.2f" %x[j]
+									filtered_quart_GIBBS_TRIMMED_Q3_max_value_x = x[j]
+									max_position_orientation = FFT_filter_functions.FFT_max_value_POINT_bearings_NORTH_FRQ(filtered_quart_GIBBS_TRIMMED_Q3_max_value_y, filtered_quart_GIBBS_TRIMMED_Q3_max_value_x, freq, corner)
+									dist_frq = FFT_filter_functions.peak_distance(filtered_quart_GIBBS_TRIMMED_Q3_max_value_x,filtered_quart_GIBBS_TRIMMED_Q3_max_value_y,calc_moving_window_size_x,calc_moving_window_size_y,freq,corner)
+									
+									print "max position distance (frq): %f" %dist_frq
+									#print "max position distance (px): %f" %dist_px
+									#print "max position distance (m): %f" %(dist_px*post)
+									print "max position orientation: %f degreesN" %(max_position_orientation)			
+									print "max position orientation (rotated -90degN): %f degreesN" %(max_position_orientation - 90.)	
+								
+					plt.imshow(np.log(filtered_quart_GIBBS_TRIMMED_Q3)), plt.colorbar()
+					plt.gca().format_coord = FFT_functions.formatter_FRQ(filtered_quart_GIBBS_TRIMMED_Q3, freq)
+					#plt.show()		
+					
+						
+				#os._exit(1)
+					
+				print "End of loop %i" %window_iteration

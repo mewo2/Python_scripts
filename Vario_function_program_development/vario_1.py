@@ -84,7 +84,7 @@ print 'Subsample 2D array'
 print '~~~~~~~~~~~~~~'
 #image_array_subsample = image_array[4790:4910, 7000:7120]
 #image_array_subsample = image_array[4790:4850, 7000:7060]
-image_array_subsample = image_array[4790:4850, 7000:7060]
+image_array_subsample = image_array[4790:4791, 7000:7001]
 
 
 ##for i in range (len(image_array)):
