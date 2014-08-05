@@ -69,7 +69,7 @@ def formatter_FRQ(mat, frq):
 
 	
 # Plots the binary and uses the "formatter" function to enable interactive viewing of x,y and z values 
-# Option to alter frequenciy resolution by changing the "frq" value	
+# Option to alter frequency resolution by changing the "frq" value	
 def plot_FFT_2D_interactive_z_AXIS_FREQ(FFT2_output, opath, snip_file_name, frq=50):
 	plt.clf()
 	magnitude = np.absolute(FFT2_output) # gives magnitude component of FFT_output
@@ -162,7 +162,7 @@ def plot_FFT_2D_axis_frequency(FFT2_output, opath, snip_file_name, plot_title, f
 	plt.ylabel("Freq. distance from origin")
 			
 	plt.savefig(output_filename)
-	#plt.show()
+	plt.show()
 	print "Magnitude maximum: %f" %(magnitude.max())
 	#return magnitude
 	
@@ -257,6 +257,61 @@ def brown_noise_surface(fft_surface, frq=50):
 	
 	x_frq = frq*2
 	y_frq = frq*2
+	print x_frq
+	print y_frq
+	
+	## i_coord and j_coord are the coordinates at a given point in the array relative to the centre of the image		
+	for i in range(x_frq): 
+		for j in range(y_frq):
+	
+	#for i in range(50): 
+		#for j in range(50):
+			
+			#print "Creating brown noise ratio surface"
+			
+			if (i>frq):
+				i_coord = i - frq
+			else:
+				i_coord = (frq - i)
+			
+			if (j>frq):
+				j_coord = j - frq
+			else:
+				j_coord = (frq - j)
+			
+			#temp[i,j] = magnitude[i,j]/i_coord**2 + j_coord**2
+			pos = brown_noise[i,j]
+			brown_noise[i,j] = pos * (i_coord**2 + j_coord**2)  # this is equivalent to multiplying by frequency squared
+																# output is ratio of fft to brown noise fft
+			#print pos
+			#print brown_noise[i,j]
+			#print "i: %f" %(i)
+			#print "j: %f" %(j)
+			#print "i (coord): %f" %(i_coord)
+			#print "j (coord): %f" %(j_coord)
+			#print "i^2 (coord): %f" %(i_coord**2)
+			#print "j^2 (coord): %f" %(j_coord**2)
+			
+			#brown_noise[i,j]/(i_coord**2 + j_coord**2)
+	
+	print "Brown noise maximum: %f" %(brown_noise.max())
+	print "Brown noise maximum (log): %f" %(np.log(brown_noise.max()))
+	
+	return brown_noise
+	
+	magnitude = np.absolute(fft_surface) # gives magnitude component of FFT_output
+	a = magnitude.dtype
+	length = magnitude.size
+	magnitude[0,0] = 1 # magnitude [0,0] is constant - ignore and make 1
+	x, y = magnitude.shape
+	magnitude = np.roll(magnitude, x//2, 0) # shifts whole image to middle of axis (x//2)
+	magnitude = np.roll(magnitude, y//2, 1)
+	magnitude = magnitude[x//2 - frq: x//2 + frq, y//2 - frq: y//2 + frq]  # cuts down to within 50 frequencies
+	
+	brown_noise = magnitude
+	
+	x_frq = frq*2
+	y_frq = frq*2
 		
 	## i_coord and j_coord are the coordinates at a given point in the array relative to the centre of the image		
 	for i in range(x_frq): 
@@ -296,7 +351,8 @@ def brown_noise_surface(fft_surface, frq=50):
 	print "Brown noise maximum (log): %f" %(np.log(brown_noise.max()))
 	
 	return brown_noise
-
+	
+	
 def plot_brown_noise(brown_noise, frq):
 	
 	x, y = brown_noise.shape

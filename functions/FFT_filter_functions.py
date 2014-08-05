@@ -117,7 +117,7 @@ def sorting_FFT_values_UNTESTED_METHODS(dem_maximum_filter, magnitude):
 # c(side length) runs from the peak position (x,y : pos_x_coord,pos_y_coord) to the top of the N arrow (x,y : frq,frq*2)
 # a (side length) runs from the origin (x,y : frq,frq) to the peak position (x,y : pos_x_coord,pos_y_coord)
 # b (side length) runs from the origin (x,y : frq,frq) to the top of the "north line" (x,y : frq,frq*2)
-def FFT_max_value_POINT_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq):
+def FFT_max_value_POINT_bearings_NORTH_FRQ_DEFUNCT(pos_x_coord,pos_y_coord,frq):
 	frq_float = frq + 0.0
 	origin_x = frq_float
 	origin_y = frq_float
@@ -208,6 +208,139 @@ def FFT_max_value_POINT_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq):
 			os._exit(1)
 		else:
 			return C_deg
+			
+def FFT_max_value_POINT_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq,corner):
+	#corner = 1 # bottom right hand corner
+	#corner = 2 # bottom left hand corner
+	#corner = 3 # top right hand corner
+	#corner = 4 # top left hand corner
+	
+	#print "In bearing method"
+	#os._exit(1)
+	
+	frq_float = frq + 0.0
+	origin_x = frq_float
+	origin_y = frq_float
+	north_x = frq_float
+	north_y = 0.0 	
+	
+	
+	print "pos_x_coord: %f" %pos_x_coord
+	print "pos_y_coord: %f" %pos_y_coord
+	print "frq_float: %f" %frq_float
+	print "origin_x: %f" %origin_x
+	print "origin_y: %f" %origin_y
+	print "north_x: %f" %north_x
+	print "north_y: %f" %north_y
+		
+	if(pos_y_coord == origin_y and pos_x_coord == origin_x):
+		C_deg = 0.0
+		return C_deg
+	# This covers the left hand side of an image (i.e. angles >180degN)
+	elif(corner == 1):
+	#elif((pos_y_coord <= origin_y and pos_x_coord <= origin_x) or (pos_x_coord <= origin_x and pos_y_coord > origin_y)):
+		origin_x = 300
+		origin_y = 300
+		
+		print "~~~~~~~~~~~~~~"
+		print "using > 180degN function...."
+		print "~~~~~~~~~~~~~~"
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = frq_float - pos_x_coord 
+		sin_x = c/a
+		
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "sin_x: %f" %(sin_x)
+		
+		x_rad = math.asin(sin_x)
+		x_deg = math.degrees(x_rad)
+		
+		print "Printing x_deg...."
+		print x_deg
+		
+		x_deg = 360.0 - x_deg
+		print "Side corrected x_deg: %f" %x_deg
+		
+	# this is for where the origin is in the topleft hand corner
+	elif(corner == 3):
+		print "~~~~~~~~~~~~~~"
+		print "using > 180degN function for bottom left hand corner image"
+		print "~~~~~~~~~~~~~~"
+		origin_x = 300
+		origin_y = 0
+		
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = frq_float - pos_x_coord 
+		sin_x = c/a
+		
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "sin_x: %f" %(sin_x)
+		
+		x_rad = math.asin(sin_x)
+		x_deg = math.degrees(x_rad)
+		
+		print "Printing x_deg...."
+		print x_deg
+		
+		x_deg = 180.0 + x_deg
+		print "Side corrected x_deg: %f" %x_deg
+		
+	# This covers the right hand side of an image (i.e. angles <180degN) <<<< NOT WORKING (probably related to inputs in the script that calls it)
+	elif(corner == 2):
+	#elif((pos_y_coord <= origin_y and pos_x_coord > origin_x) or (pos_x_coord > origin_x and pos_y_coord > origin_y)):	
+		origin_x = 0
+		origin_y = 300
+			
+		print "~~~~~~~~~~~~~~"
+		print "using < 180degN function...."
+		print "~~~~~~~~~~~~~~"
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = pos_x_coord - frq_float
+		sin_x = c/a
+		
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "sin_x: %f" %(sin_x)
+		
+		x_rad = math.asin(sin_x)
+		x_deg = math.degrees(x_rad)
+		
+		print "Printing x_deg...."
+		print x_deg
+	
+	elif(corner == 4):
+	#elif((pos_y_coord <= origin_y and pos_x_coord > origin_x) or (pos_x_coord > origin_x and pos_y_coord > origin_y)):	
+		origin_x = 0
+		origin_y = 0
+			
+		print "~~~~~~~~~~~~~~"
+		print "using < 180degN function...."
+		print "~~~~~~~~~~~~~~"
+		a = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))
+		b = frq_float
+		c = pos_x_coord - frq_float
+		sin_x = c/a
+		
+		print "a: %f" %a
+		print "b: %f" %b
+		print "c: %f" %c
+		print "sin_x: %f" %(sin_x)
+		
+		x_rad = math.asin(sin_x)
+		x_deg = math.degrees(x_rad)
+		
+		x_deg = 90. + x_deg
+		print "Side corrected x_deg: %f" %x_deg
+				
+	return x_deg
 	
 ## FFT_max_filter_values is an older function that maximum filtered the surface, got the xy coords of the maximum pixels and then calculated their bearings (degN) relative to the centre of the image (assuming "up" is north) - outputs were then written to a .txt file - this has been reworked now so is OLD
 def FFT_max_filter_values_OLD(freq, post, input_x, input_y, magnitude, kernel=50):
@@ -397,7 +530,7 @@ def FFT_max_filter_values_OLD(freq, post, input_x, input_y, magnitude, kernel=50
 		return dem_maximum_filter
 
 # FFT_max_filter_values_SIMPLE creates a maximum filtered FFT surface and returns the array
-def FFT_max_filter_values_SIMPLE(freq, post, input_x, input_y, magnitude, opath, kernel=50):
+def FFT_max_filter_values_SIMPLE(post, input_x, input_y, magnitude, opath, kernel=50):
 		
 		print "magnitude.shape"
 		print magnitude.shape
@@ -423,16 +556,61 @@ def FFT_max_filter_values_SIMPLE(freq, post, input_x, input_y, magnitude, opath,
 		dem_maximum_filter = ndimage.filters.maximum_filter(magnitude,size=(kernel,kernel),mode='reflect')
 		filter_max = dem_maximum_filter.max()
 		
+		plt.clf()
 		plt.imshow(np.log(dem_maximum_filter)), plt.colorbar()
-		plt.title("Maximum surface")
-		output_filename = opath + 'maximum_surface_DEVELOPMENT_TEST.png' 
+		plt.title("Maximum filtered surface")
+		output_filename = opath + '\maximum_surface_DEVELOPMENT_TEST.png' 
 		plt.savefig(output_filename)
 		#plt.show()
 		
 		plt.clf()
 		
+		print "Maximum filtering complete"
+		
 		return dem_maximum_filter
+		
 
+def FFT_gaussian_filter_values_SIMPLE(post, input_x, input_y, magnitude, opath, kernel=50):
+		
+		print "magnitude.shape"
+		print magnitude.shape
+		print "magnitude.dtype"
+		print magnitude.dtype
+		print "magnitude.max"
+		print magnitude.max()
+		print "magnitude.min"
+		print magnitude.min()
+		
+		print "input_x: %f" %input_x
+		print "input_y: %f" %input_y
+
+		print '~~~~~~~~~~~~~~'
+		print 'Gaussian filter'
+		print '~~~~~~~~~~~~~~'
+
+		print "Calculating...."
+		method = "_gaussian"
+		order_value = 0
+		#sigma = 120 # pixels either side of point so use 30 for a 'window' of 60
+		sigma = (kernel/2) - 1
+		
+		dem_gaussian_filter = ndimage.filters.gaussian_filter(magnitude,sigma,order=order_value,mode='reflect')
+		filter_max = dem_gaussian_filter.max()
+		
+		print dem_gaussian_filter.dtype
+		
+		plt.clf()
+		plt.imshow(np.log(dem_gaussian_filter)), plt.colorbar()
+		plt.title("Gaussian filtered surface (kernel: %i)" %kernel)
+		output_filename = opath + '\gaussian_surface_DEVELOPMENT_TEST_%i.png' %kernel 
+		plt.savefig(output_filename)
+		#plt.show()
+		plt.clf()
+		
+		print "Gaussian filtering complete"
+		
+		return dem_gaussian_filter
+				
 # Stifles the apparent gibbs effect that is clear on the maximum filter surfaces - limits on the x and y axis to be stifled are hardwired in the function
 def Stifle_Gibbs_effect_on_FFT_max_filter(max_filter_surface, freq, opath):
 		#  if coordinates are between 250 and 350 in x, make value NaN
@@ -1030,3 +1208,51 @@ def zero_all_but_rank_value_IMAGE_RETURN_PART_2(FFT_surface, opath, value_to_ret
 	#plt.show()
 	plt.clf()
 	return FFT_surface
+	
+def subsample_quadrant(array,ymin,ymax,xmin,xmax,opath,title= ""):
+	subsampled_array = array[ymin:ymax,xmin:xmax]
+	plt.clf()
+	plt.title(title)
+	plt.imshow(subsampled_array), plt.colorbar()
+	output_filename = opath + '\%s.png' %(title) 
+	plt.savefig(output_filename)
+	#plt.show()	
+	
+	return subsampled_array
+	
+	
+def peak_distance(pos_x_coord,pos_y_coord,input_x,input_y,frq,corner):
+	
+	#corner = 1 # bottom right hand corner
+	#corner = 2 # bottom left hand corner
+	#corner = 3 # top right hand corner
+	#corner = 4 # top left hand corner
+	if(corner == 1):
+		origin_x = frq
+		origin_y = frq
+	elif(corner == 2):
+		origin_x = 0.
+		origin_y = frq
+	elif(corner == 3):	
+		origin_x = frq
+		origin_y = 0.
+	elif(corner == 4):	
+		origin_x = 0.
+		origin_y = 0.
+			
+	if(pos_y_coord == origin_y and pos_x_coord == origin_x):
+		dist_frq = 0.0
+		#dist_px = 0.0
+	else:
+		dist_frq = math.sqrt(((origin_x - pos_x_coord)**2)+((origin_y - pos_y_coord)**2))	
+	'''	
+		frq  - dist_frq
+		pos_x_coord_in_frq = frq - pos_x_coord
+		pos_y_coord_in_frq = frq - pos_y_coord
+		x_co_px_pos = (input_x)/pos_x_coord_in_frq
+		y_co_px_pos = (input_y)/pos_y_coord_in_frq
+		
+		xy_dist_px = math.sqrt(x_co_px_pos**2 + y_co_px_pos**2)
+	'''
+	#return dist_frq, xy_dist_px
+	return dist_frq

@@ -36,8 +36,6 @@ driver.Register()
 plt.clf()
 
 # Set file location
-#file_name = r"/geog/data/altair/epsilon/ggwillc/AL_ARSF_GRNLND_2013/LiDAR/201a/post_0.5/bin/dem_median_filter_kernel_121_crevasse_surface"
-#file_name = r"/geog/data/sirius/epsilon/ggwillc/Maximum_surface_filtering/Helheim/222/HELHEIM_222a_dem_maximum_filter_kernel_239_20_percent_reduction_crevasse_surface_20_percent_reduction" 
 file_name = r"/geog/data/arcturus/epsilon/ggwillc/Maximum_surface_filtering/Helheim/222/HELHEIM_222a_dem_maximum_filter_kernel_239_20_percent_reduction_crevasse_surface_20_percent_reduction_SUBSAMPLE"
 
 # open file
@@ -50,60 +48,15 @@ if inds is None:
 else:
 	print "%s opened successfully" %file_name
 	
-print '~~~~~~~~~~~~~~'
-print 'Get image size'
-print '~~~~~~~~~~~~~~'
-cols = inds.RasterXSize
-rows = inds.RasterYSize
-bands = inds.RasterCount
-
-print "columns: %i" %cols
-print "rows: %i" %rows
-print "bands: %i" %bands
-
-print '~~~~~~~~~~~~~~'
-print 'Get georeference information'
-print '~~~~~~~~~~~~~~'
-geotransform = inds.GetGeoTransform()
-originX = geotransform[0]
-originY = geotransform[3]
-pixelWidth = geotransform[1]
-pixelHeight = geotransform[5]
-
-print "origin x: %i" %originX
-print "origin y: %i" %originY
-print "width: %2.2f" %pixelWidth
-print "height: %2.2f" %pixelHeight
-
-print '~~~~~~~~~~~~~~' 
-print 'Convert image to 2D array'
-print '~~~~~~~~~~~~~~'
-
-band = inds.GetRasterBand(1)
-image_array = band.ReadAsArray(0, 0, cols, rows)
-image_array_name = file_name
-print type(image_array)
-print shape(image_array)
-
-print '~~~~~~~~~~~~~~' 
-print 'Subsample 2D array'
-print '~~~~~~~~~~~~~~'
-#image_array_subsample_DATA = image_array[7119:7219, 7219:7319] ##  [i1:i2, j1:j2]
-#image_array_subsample_DATA = image_array[3230:4230, 6117:7117] ## HELHEIM
-image_array_subsample_DATA = image_array[5117:8665, 1209:6028] ## HELHEIM
-print type(image_array_subsample_DATA)
-print shape(image_array_subsample_DATA)
+inds, cols, rows, bands, originX, originY, pixelWidth, pixelHeight, image_array, image_array_name = raster_functions.ENVI_raster_binary_to_2d_array(file_name)	
 
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 print 'CHECK OUTPUT DIRECTORY EXISTS'
 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-winsize = 512 ## FFT is faster for a window to the power of 2 OR a prime number
+kernel_size = 512 ## FFT is faster for a window to the power of 2 OR a prime number
 stepsize = 1000
-#nsample_input = 1000000
 
-#opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/'
-#opath = r'/geog/data/sirius/epsilon/ggwillc/vario_outputs/subsample_tests/winsize_%i_stepsize_%i_random_hits_%i/' %(winsize, stepsize, nsample_input)
 opath = r'/geog/data/sirius/epsilon/ggwillc/FFT2/tests2/'
 
 if os.path.isdir(opath):
@@ -113,7 +66,6 @@ else:
 	os.makedirs(opath)
 	print "...but it does now"
 
-	
 def FFT2_processing(image_array):
 	print "Calculating FFT..."
 	FFT2_output = fft2(image_array)
@@ -145,12 +97,13 @@ image_array_subsample_DATA[indNan]=10.
 # SET MOVING WINDOW UP
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-if winsize > 1 and winsize%2 != 0:
-	print "WINDOW SIZE VALID"
-else:
-	print "WINDOW SIZE INVALID - MUST BE AN ODD NUMBER AND > 1"
+if(kernel_size % 2 != 0 and kernel_size >= 3):
+	window = np.ones([kernel_size,kernel_size])
+elif(kernel_size % 2 == 0 or kernel_size < 3):
+	print "kernel is even - it needs to be odd and at least of a value of 3"
+	os._exit(1)
 
-nxwind, nywind = image_array_subsample_DATA.shape
+nxwind, nywind = FFT_surface.shape
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # IMPLEMENT LOOP FOR MOVING WINDOW TO WORK THROUGH
@@ -166,11 +119,14 @@ for ii in range(0, nxwind, stepsize):
 		#print "jj: %i" %(jj)
 		
 		# CALCULATE MAX AND MIN RANGES OF ROWS AND COLS THAT CAN BE ACCESSED BY THE WINDOW
-		imin=max(0,ii-winsize/2) # gets the maximum of either 0 or ii-winsize/2...
-		imax=min(nxwind-1,ii+winsize/2)+1
-		jmin=max(0,jj-winsize/2)
-		jmax=min(nywind-1,jj+winsize/2)+1
-				
+		imin=max(0,i-((kernel_size-1)/2)) # gets the maximum of either 0 or i-kernel_size/2...
+		imax=min(nxwind-1,i+((kernel_size-1)/2))+1
+		jmin=max(0,j-((kernel_size-1)/2))
+		jmax=min(nywind-1,j+((kernel_size-1)/2))+1
+			
+		calc_moving_window_size_x = imax - imin 
+		calc_moving_window_size_y = jmax- jmin
+		
 		### Cell ii,jj is at centre of array
 		datwind=image_array_subsample_DATA[imin:imax,jmin:jmax] # IF CELLS ARE OUTSIDE OF THE ARRAY, THEY TAKE THE VALUES OF THE OTHER END OF THE ARRAY
 				

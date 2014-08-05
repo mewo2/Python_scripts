@@ -30,10 +30,11 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 import sys
-#sys.path.insert(0, '/home/staff/ggwillc/Desktop/Python_scripts/functions')
-sys.path.insert(0, 'C:/Users/ggwillc/Desktop/Python_scripts-master/functions')
+sys.path.insert(0, '/home/staff/ggwillc/Desktop/Python_scripts/functions')
+#sys.path.insert(0, 'C:/Users/ggwillc/Desktop/Python_scripts-master/functions')
 import FFT_functions as FFT_functions
 import FFT_filter_functions as FFT_filter_functions
+import raster_functions as raster_functions	
 
 startTime = time.time()
 
@@ -66,52 +67,9 @@ for file_name in glob("C:\Users\ggwillc\Desktop\FFT\FFT_surfaces_binary\helheim_
 	else:
 		"Name snipping error!!"
 		os._exit(1)
-		
-	# open file
-	inds = gdal.Open(file_name, GA_ReadOnly)
-
-	if inds is None:
-		print "Really sorry Sir but I couldn't open this blasted file: " + file_name
-		print '\nPerhaps you need an ENVI .hdr file? If so, just open the binary up in ENVI and one will be created for you!'
-		os._exit(1)
-	else:
-		print "%s opened successfully" %file_name
-		
-	print '~~~~~~~~~~~~~~'
-	print 'Get image size'
-	print '~~~~~~~~~~~~~~'
-	cols = inds.RasterXSize
-	rows = inds.RasterYSize
-	bands = inds.RasterCount
-
-	print "columns: %i" %cols
-	print "rows: %i" %rows
-	print "bands: %i" %bands
-
-	print '~~~~~~~~~~~~~~'
-	print 'Get georeference information'
-	print '~~~~~~~~~~~~~~'
-	geotransform = inds.GetGeoTransform()
-	originX = geotransform[0]
-	originY = geotransform[3]
-	pixelWidth = geotransform[1]
-	pixelHeight = geotransform[5]
-
-	print "origin x: %i" %originX
-	print "origin y: %i" %originY
-	print "width: %2.2f" %pixelWidth
-	print "height: %2.2f" %pixelHeight
-
-	print '~~~~~~~~~~~~~~' 
-	print 'Convert image to 2D array'
-	print '~~~~~~~~~~~~~~'
-
-	band = inds.GetRasterBand(1)
-	image_array = band.ReadAsArray(0, 0, cols, rows)
-	image_array_name = file_name
-	print type(image_array)
-	print shape(image_array)
-
+	
+	inds, cols, rows, bands, originX, originY, pixelWidth, pixelHeight, image_array, image_array_name = raster_functions.ENVI_raster_binary_to_2d_array(file_name)	
+	
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	print 'CHECK OUTPUT DIRECTORY EXISTS'
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
@@ -138,8 +96,6 @@ for file_name in glob("C:\Users\ggwillc\Desktop\FFT\FFT_surfaces_binary\helheim_
 	plot_title = "Rolled FFT"
 	freq = 300
 	post = 0.5
-	
-	
 	
 	input_x, input_y, magnitude = FFT_functions.magnitude_2D_RETURN(FFT_surface, freq)
 	
