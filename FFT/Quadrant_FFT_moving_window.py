@@ -27,7 +27,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import sys
-sys.path.insert(0, 'C:/Users/ggwillc/Desktop/Python_scripts/functions')
+sys.path.insert(0, 'C:/Users/ggwillc/Documents/GitHub/Python_scripts/functions')
 import FFT_functions 
 reload(FFT_functions)
 import FFT_filter_functions 
@@ -96,10 +96,12 @@ for file_name in glob(file):
 	#freq = 300
 	#post = 0.5
 	
-	nxwind = 301 # 2x freq
-	nywind = 301 # 2x freq
-	kernel_size = 301#23 ## FFT is faster for a window to the power of 2 OR a prime number
-	stepsize = 1
+	#nxwind = 301 # 2x freq
+	#nywind = 301 # 2x freq
+	nywind,nxwind = image_array.shape
+	#kernel_size = 301#23 ## FFT is faster for a window to the power of 2 OR a prime number
+	kernel_size = 1001
+	stepsize = 200
 	freq = int(nxwind/2)
 	print "##############"
 	print "freq: %i" %freq
@@ -125,6 +127,8 @@ for file_name in glob(file):
 	print "window_border_indent: %f"  %window_border_indent
 	print "window_border_indent_end_X: %f"  %window_border_indent_end_X
 	print "window_border_indent_end_Y: %f"  %window_border_indent_end_Y
+	
+	#os._exit(1)
 	
 	window_iteration = 0
 		
@@ -164,9 +168,9 @@ for file_name in glob(file):
 			fft_complex = np.fft.fft2(subsample_elevation_surface)
 			fft_mag = abs(fft_complex)
 			
-			plt.imshow(np.log(fft_mag)), plt.colorbar()
-			plt.show()
-			plt.clf()
+			#plt.imshow(np.log(fft_mag)), plt.colorbar()
+			#plt.show()
+			#plt.clf()
 			
 			## Get rolled FFT image object
 			FFT_surface = fft_mag
@@ -184,7 +188,8 @@ for file_name in glob(file):
 			## Also ignores a cut off zone as defined around the centre of the full rolled FFT image - currently ASSUMES A SQUARE REGION
 			gibbs_allowance= 20 # pixels
 			cutoff_zone = 40 # pixels
-			mod_length = freq - gibbs_allowance
+			#mod_length = freq - gibbs_allowance
+			mod_length = (kernel_size/2) - gibbs_allowance
 		
 			#os._exit(1)
 			
@@ -194,19 +199,20 @@ for file_name in glob(file):
 			if(test_for_quadrant_max == 1):
 				Q1_title = "Q1 (top left)"
 				#Q1 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),0,300,0,300,opath,Q1_title )
-				Q1 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),0,nxwind/2,0,nxwind/2,opath,Q1_title )
+				Q1 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),0,kernel_size/2,0,kernel_size/2,opath,Q1_title )
 				GIBBS_TRIMMED_Q1 = Q1[0:mod_length,0:mod_length].copy()
 				ny, nx = Q1.shape
 				filtered_quart_GIBBS_TRIMMED_Q1 = FFT_filter_functions.FFT_gaussian_filter_values_SIMPLE(post, nx, ny, GIBBS_TRIMMED_Q1, opath, 25)
 				x_axis_limit_Q1 = len(filtered_quart_GIBBS_TRIMMED_Q1) - cutoff_zone
 				y_axis_limit_Q1 = len(filtered_quart_GIBBS_TRIMMED_Q1) - cutoff_zone 
 				gibbs_trimmed_and_cutoff_area_max_Q1 = filtered_quart_GIBBS_TRIMMED_Q1[0:y_axis_limit_Q1,0:x_axis_limit_Q1].max()
-			
+				
 				Q3_title = "Q3 (bottom left)"
-				#Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),300,600,0,300,opath,Q3_title)
-				Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),nywind/2,nywind,nxwind/2,nxwind,opath,Q3_title)
+				#Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),150,300,150,300,opath,Q3_title)
+				Q3 = FFT_filter_functions.subsample_quadrant(np.log(brown_noise),kernel_size/2,kernel_size,kernel_size/2,kernel_size,opath,Q3_title)
 				GIBBS_TRIMMED_Q3 = Q3[gibbs_allowance:freq,gibbs_allowance:freq].copy()
 				ny, nx = Q3.shape
+				
 				filtered_quart_GIBBS_TRIMMED_Q3 = FFT_filter_functions.FFT_gaussian_filter_values_SIMPLE(post, nx, ny, GIBBS_TRIMMED_Q3, opath, 25)
 				x_axis_limit_Q3 = len(filtered_quart_GIBBS_TRIMMED_Q3) - cutoff_zone
 				gibbs_trimmed_and_cutoff_area_max_Q3 = filtered_quart_GIBBS_TRIMMED_Q3[cutoff_zone:len(filtered_quart_GIBBS_TRIMMED_Q3),0:x_axis_limit_Q3].max()
@@ -245,7 +251,9 @@ for file_name in glob(file):
 					for i in range(len(filtered_quart_GIBBS_TRIMMED_Q1)):
 						for j in range(len(filtered_quart_GIBBS_TRIMMED_Q1[i])):
 					
-							if(i > (0 + cutoff_zone)) and (j < (300 - cutoff_zone)):
+							#if(i > (0 + cutoff_zone)) and (j < (300 - cutoff_zone)):
+							if(i > (0 + cutoff_zone)) and (j < (kernel_size/2 - cutoff_zone)):
+							
 								if(filtered_quart_GIBBS_TRIMMED_Q1[i,j] == filtered_quart_GIBBS_TRIMMED_Q1.max()):
 									print filtered_quart_GIBBS_TRIMMED_Q1[i,j]
 									print "y = %.2f" %y[i]
@@ -265,8 +273,9 @@ for file_name in glob(file):
 								pass
 					
 					plt.imshow(np.log(filtered_quart_GIBBS_TRIMMED_Q1)), plt.colorbar()
+					plt.title("Corner 1: [%i,%i]" %(ii, jj))
 					plt.gca().format_coord = FFT_functions.formatter_FRQ(filtered_quart_GIBBS_TRIMMED_Q1, freq)
-					#plt.show()		
+					plt.show()		
 					
 								
 				elif(corner == 3):
@@ -274,7 +283,8 @@ for file_name in glob(file):
 					for i in range(len(filtered_quart_GIBBS_TRIMMED_Q3)):
 						for j in range(len(filtered_quart_GIBBS_TRIMMED_Q3[i])):
 						
-							if(i < (cutoff_zone)) and (j > (300 - cutoff_zone)):
+							#if(i < (cutoff_zone)) and (j > (300 - cutoff_zone)):
+							if(i < (cutoff_zone)) and (j > (kernel_size/2 - cutoff_zone)):
 								#print "[%i,%i]" %(i,j)
 								pass
 							else:
@@ -294,10 +304,12 @@ for file_name in glob(file):
 									print "max position orientation (rotated -90degN): %f degreesN" %(max_position_orientation - 90.)	
 								
 					plt.imshow(np.log(filtered_quart_GIBBS_TRIMMED_Q3)), plt.colorbar()
+					plt.title("Corner 3: [%i,%i]" %(ii, jj))
 					plt.gca().format_coord = FFT_functions.formatter_FRQ(filtered_quart_GIBBS_TRIMMED_Q3, freq)
-					#plt.show()		
+					plt.show()		
 					
 						
 				#os._exit(1)
 					
 				print "End of loop %i" %window_iteration
+				sys.exit()

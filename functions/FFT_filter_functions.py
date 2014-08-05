@@ -282,7 +282,7 @@ def FFT_max_value_POINT_bearings_NORTH_FRQ(pos_x_coord,pos_y_coord,frq,corner):
 		print "c: %f" %c
 		print "sin_x: %f" %(sin_x)
 		
-		x_rad = math.asin(sin_x)
+		x_rad = np.arcsin(sin_x)
 		x_deg = math.degrees(x_rad)
 		
 		print "Printing x_deg...."
